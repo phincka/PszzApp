@@ -1,0 +1,134 @@
+<resources>
+    <string name="app_name">pszzapp</string>
+
+    <!-- SignIn screen start -->
+    <string name="signIn_title">Logowanie</string>
+    <string name="signIn_form_login">E-mail</string>
+    <string name="signIn_form_password">Hasło</string>
+    <string name="signIn_login_button">Zaloguj się</string>
+    <string name="signIn_register_button">Utwórz konto</string>
+    <string name="signIn_reset_password_text">Nie pamiętasz hasła?</string>
+    <string name="signIn_reset_password_button">Zresetuj hasło</string>
+    <!-- SignIn screen end -->
+
+    <!-- SignUp screen start -->
+    <string name="signUp_title">Rejestracja</string>
+    <string name="signUp_form_login">E-mail</string>
+    <string name="signUp_form_password">Hasło</string>
+    <string name="signUp_form_repeat_password">Powtórz hasło</string>
+    <string name="signUp_register_button">Utwórz konto</string>
+    <string name="signUp_reset_password_text">Masz już konto?</string>
+    <string name="signUp_reset_password_button">Zaloguj się</string>
+    <string name="signUp_loading">Tworzenie konta</string>
+    <!-- SignUp screen end -->
+
+    <!-- Verify Email screen start -->
+    <string name="verify_email_title">Gratulacje!</string>
+    <string name="verify_email_text_1">Twoje konto zostało utworzone. Zanim zaczniesz korzystać z aplikacji, najpierw potwierdź adres E-mail.</string>
+    <string name="verify_email_text_2">Na twój adres E-mail została wysłana wiadomość z linkiem potwierdzającym. Wróć do aplikacji po kliknięciu w link.</string>
+    <string name="verify_email_button_verify">Zweryfikowałem!</string>
+    <string name="verify_email_button_resend">Wyślij ponownie!</string>
+    <string name="verify_email_signout_text">Nie chcesz weryfikować konta?</string>
+    <string name="verify_email_signout_button">Wyloguj się!</string>
+    <!-- Verify Email screen end -->
+
+    <!-- Auth State start -->
+    <string name="auth_state_no_user">Nie znaleziono użytkownika</string>
+    <string name="auth_state_passwords_not_equal">Hasła nie są takie same.</string>
+    <string name="auth_state_verification_error">Nie udało się zweryfikować użytkownika.</string>
+    <string name="auth_state_update_error">Błąd podczas aktualizacji danych:</string>
+    <string name="auth_state_email_send">Wiadomość została wysłana.</string>
+    <string name="auth_state_email_not_send">Błąd podczas wysyłania wiadomości:</string>
+    <!-- Auth State screen end -->
+
+    <!-- Hive State start -->
+    <string name="hive_state_no_user">Nie znaleziono użytkownika</string>
+    <string name="hive_state_creating_error">Błąd podczas dodawania ula:</string>
+    <!-- Hive State screen end -->
+
+    <!-- Home screen start -->
+    <string name="home_top_bar_title">pszzapp</string>
+    <string name="home_floating_action_button">Dodaj ul</string>
+    <string name="home_no_hives">Brak dostępnych uli. Musisz najpierw dodać ul.</string>
+    <string name="home_loading">Ładownie…</string>
+    <!-- Home screen end -->
+
+    <!-- Hive screen start -->
+    <string name="hive_top_bar_title">Ul</string>
+    <string name="home_no_hive">Ul o podanym ID nie istnieje</string>
+    <string name="hive_tab_name_summary">Podsumowanie</string>
+    <string name="hive_tab_name_info">Informacje</string>
+    <string name="hive_tab_name_queen">O matce</string>
+    <string name="hive_nav_add_geo">Dodaj lokalizacje</string>
+    <string name="hive_nav_update_geo">Zmień lokalizacje</string>
+    <string name="hive_nav_show_weather">Sprawdź pogodę</string>
+    <string name="hive_nav_edit_hive">Edytuj ul</string>
+    <string name="hive_nav_remove_hive">Usuń!</string>
+    <string name="hive_remove_modal_title">Usuń ul</string>
+    <string name="hive_remove_modal_text">Czy na pewno chcesz usunąć ul?</string>
+    <string name="hive_loading">Ładownie…</string>
+    <!-- Hive screen end -->
+
+    <!-- Create hive screen start -->
+    <string name="create_hive_title">Dodaj nowy ul</string>
+    <string name="create_hive_form_hive_title">Informacje o ulu</string>
+    <string name="create_hive_form_queen_title">Informacje o matce</string>
+    <string name="create_hive_form_name">Nazwa ula</string>
+    <string name="create_hive_form_family_type">Typ rodziny</string>
+    <string name="create_hive_form_type">Rodzaj ula</string>
+    <string name="create_hive_form_queen_breed">Rasa</string>
+    <string name="create_hive_form_queen_line">Linia</string>
+    <string name="create_hive_form_queen_year">Oznaczenie matki</string>
+    <string name="create_hive_form_queen_state">Stan</string>
+    <string name="create_hive_form_queen_note">Notatka</string>
+    <string name="create_hive_form_button">Utwórz ul</string>
+    <!-- Create hive screen end -->
+
+    <!-- Add hive location screen start -->
+    <string name="add_hive_location_title">Dodaj lokalizacje</string>
+    <string name="add_hive_location_snackbar_update">Zmieniono położenie ula</string>
+    <string name="add_hive_location_snackbar_create">Dodano nową lokalizację ula</string>
+    <string name="add_hive_location_snackbar_close">Zamknij</string>
+    <string name="add_hive_location_marker_title">Ul: </string>
+    <string name="add_hive_location_marker_snippet">Najlepszy zasięg lotu pszczoły: 1,5km.</string>
+    <string name="add_hive_location_loading">Ładownie…</string>
+    <!-- Add hive location screen end -->
+
+    <!-- Weather screen start -->
+    <string name="weather_screen_no_location">Ul nie posiada lokalizacji</string>
+    <string name="weather_screen_loading">Ładowanie…</string>
+    <string name="weather_screen_today">Dziś</string>
+    <string name="weather_screen_today_prev">Cofnij</string>
+    <string name="weather_screen_today_next">Pokaż następne</string>
+    <string name="weather_screen_daily">Najbliższe dni</string>
+    <!-- Weather screen end -->
+
+    <!-- Weather screen start -->
+    <string name="weather_top_title">Sprawdź pogodę</string>
+    <!-- Create hive screen end -->
+
+    <!-- Notifications channels start -->
+    <string name="notification_channel_title">Nowy kanał powiadomień</string>
+    <string name="notification_channel_desscription">Lorem impsum</string>
+    <!-- Notifications channels start -->
+
+    <!-- Notifications start -->
+    <string name="notification_created_hive_title">Utworzono ul!</string>
+    <string name="notification_created_hive_description">Twój ul został utworzony ale wymaga jeszcze konfiguracji. Przejdź do ula aby dodać lokalizacje.</string>
+
+    <string name="notification_geo_hive_title">Możesz dodać lokalizacje do ula</string>
+    <string name="notification_geo_hive_description">Możesz dodać lokalizacje do ula. Nie czekaj zrób to teraz.</string>
+
+    <string name="notification_no_permission">Brak uprawnień do wyświetalnia powiadomień</string>
+    <!-- Notifications start-->
+
+    <!-- Remove modal start -->
+    <string name="remove_modal_remove">Usuń</string>
+    <string name="remove_modal_cancel">Anuluj</string>
+    <!-- Remove modal end -->
+
+    <!-- Remove modal start -->
+    <string name="home_screen">Home</string>
+    <string name="hive_screen">Hive</string>
+    <!-- Remove modal end -->
+</resources>
