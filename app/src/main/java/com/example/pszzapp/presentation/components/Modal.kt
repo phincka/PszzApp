@@ -7,7 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import com.example.pszzapp.R
-import com.example.pszzapp.presentation.components.TextButton
 
 @Composable
 fun Modal(
@@ -37,13 +36,13 @@ fun Modal(
             onDismissRequest()
         },
         confirmButton = {
-            TextButton(
+            FilledButton(
                 text = stringResource(R.string.remove_modal_remove),
                 onClick = { onConfirmation() }
             )
         },
         dismissButton = {
-            TextButton(
+            FilledButton(
                 text = stringResource(R.string.remove_modal_cancel),
                 onClick = { onDismissRequest() }
             )

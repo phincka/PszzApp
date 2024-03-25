@@ -1,5 +1,6 @@
 package com.example.pszzapp.presentation.auth.signIn
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pszzapp.data.util.AuthState
@@ -15,7 +16,6 @@ class SignInViewModel(
 ): ViewModel() {
     private val _state: MutableStateFlow<AuthState> = MutableStateFlow(AuthState.Success(false))
     val signInState: StateFlow<AuthState> = _state
-
 
     fun signIn(
         email: String,

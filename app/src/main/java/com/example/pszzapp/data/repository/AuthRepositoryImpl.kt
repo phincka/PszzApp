@@ -1,8 +1,10 @@
 package com.example.pszzapp.data.repository
 
 import android.content.Context
+import android.util.Log
 import com.example.pszzapp.R
 import com.example.pszzapp.data.model.UserModel
+import com.example.pszzapp.data.util.AccountUserState
 import com.example.pszzapp.data.util.AuthState
 import com.example.pszzapp.domain.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -15,12 +17,22 @@ class AuthRepositoryImpl(
     private val firebaseAuth: FirebaseAuth,
     private val context: Context
 ): AuthRepository {
-    override suspend fun getCurrentUser(): UserModel? = firebaseAuth.currentUser?.run {
-        UserModel(
-            userId = uid,
-            email = email,
-            isEmailVerified = isEmailVerified
-        )
+    override suspend fun getCurrentUser(): AccountUserState = try {
+        val user = firebaseAuth.currentUser
+
+        if (user != null) {
+            AccountUserState.SignedInState(
+                UserModel(
+                    userId = user.uid,
+                    email = user.email,
+                    isEmailVerified = user.isEmailVerified
+                )
+            )
+        } else {
+            AccountUserState.GuestState
+        }
+    } catch (e: Exception) {
+        AccountUserState.Error("Failed: ${e.message}")
     }
 
     override suspend fun firebaseEmailSignIn(
@@ -31,6 +43,7 @@ class AuthRepositoryImpl(
             firebaseAuth.signInWithEmailAndPassword(email, password).await()
             AuthState.Success(true)
         } catch (error: Exception) {
+            Log.d("LOG_APP", error.toString())
             AuthState.Error(error.toString())
         }
     }
@@ -62,9 +75,9 @@ class AuthRepositoryImpl(
 
     override suspend fun firebaseSignOut() = try {
         firebaseAuth.signOut()
-        AuthState.Success(true)
+        AccountUserState.GuestState
     } catch (error: Exception) {
-        AuthState.Error(error.toString())
+        AccountUserState.Error(error.toString())
     }
 
     override suspend fun checkEmailVerification(): AuthState {

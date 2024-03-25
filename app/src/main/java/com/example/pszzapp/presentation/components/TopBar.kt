@@ -9,7 +9,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.style.TextOverflow
 
@@ -17,10 +17,11 @@ import androidx.compose.ui.text.style.TextOverflow
 @Composable
 fun TopBar(
     backNavigation: (() -> Unit)? = null,
-    scrollBehavior: TopAppBarScrollBehavior,
     title: String,
     content: @Composable () -> Unit
 ) {
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,

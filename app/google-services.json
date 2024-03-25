@@ -1,39 +1,10 @@
 {
   "project_info": {
     "project_number": "190490399300",
-    "project_id": "pszzapp-358cc",
-    "storage_bucket": "pszzapp-358cc.appspot.com"
+    "project_id": "hiveapp-358cc",
+    "storage_bucket": "hiveapp-358cc.appspot.com"
   },
   "client": [
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:190490399300:android:0d720cb179a0c92e47e211",
-        "android_client_info": {
-          "package_name": "com.example.pszzapp"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "190490399300-pu192kr2hlo0lkdq1586g5hp2a6pqgh3.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDxqTb87avdwiuGEQ0-xgL22IaaELFkJBk"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "190490399300-pu192kr2hlo0lkdq1586g5hp2a6pqgh3.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
     {
       "client_info": {
         "mobilesdk_app_id": "1:190490399300:android:fa0fe9c1d8004fab47e211",

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
@@ -28,11 +29,12 @@ fun Dropdown(
         modifier = Modifier
             .fillMaxSize()
             .wrapContentSize(Alignment.TopEnd)
+            .offset(y = (-24).dp)
     ) {
         DropdownMenu(
             expanded = true,
             onDismissRequest = { setDropdownMenuVisible(false) },
-            modifier = Modifier.width(200.dp)
+            modifier = Modifier.width(240.dp)
         ) {
             menuItems.forEachIndexed { index, item ->
                 if (index == menuItems.size - 1) {

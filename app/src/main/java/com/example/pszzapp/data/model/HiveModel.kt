@@ -1,7 +1,6 @@
 package com.example.pszzapp.data.model
 
-data class ApiaryModel(
+data class HiveModel(
     val id: String,
     val name: String,
-    val type: Int,
 )

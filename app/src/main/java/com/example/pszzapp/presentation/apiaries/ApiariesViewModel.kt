@@ -1,15 +1,11 @@
-package com.example.pszzapp.presentation.apiary
+package com.example.pszzapp.presentation.apiaries
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.pszzapp.data.model.UserModel
-import com.example.pszzapp.data.util.AuthState
+import com.example.pszzapp.data.model.ApiaryModel
 import com.example.pszzapp.domain.usecase.apiary.GetApiariesUseCase
-import com.example.pszzapp.domain.usecase.auth.GetCurrentUserUseCase
-import com.example.pszzapp.domain.usecase.auth.SignOutUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
@@ -21,10 +17,12 @@ class ApiariesViewModel(
     val apiariesState: StateFlow<ApiariesState> = _apiariesState
 
     init {
-        getAllHives()
+        getApiaries()
     }
 
-    private fun getAllHives() {
+    private fun getApiaries() {
+        _apiariesState.value = ApiariesState.Loading
+
         viewModelScope.launch {
             try {
                 val apiaries = getApiariesUseCase()
@@ -34,4 +32,10 @@ class ApiariesViewModel(
             }
         }
     }
+}
+
+sealed class ApiariesState {
+    data object Loading : ApiariesState()
+    data class Success(val apiaries: List<ApiaryModel>) : ApiariesState()
+    data class Error(val message: String) : ApiariesState()
 }

@@ -1,18 +1,18 @@
 package com.example.pszzapp.presentation.components
 
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun TextOutlinedButton(
+fun FilledButton(
     modifier: Modifier = Modifier,
     text: String,
     onClick: () -> Unit,
     enabled: Boolean = true
 ) {
-    OutlinedButton(
+    Button(
         modifier = modifier,
         onClick = onClick,
         enabled = enabled,
