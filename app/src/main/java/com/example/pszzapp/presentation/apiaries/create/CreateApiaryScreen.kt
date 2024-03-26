@@ -25,13 +25,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.pszzapp.R
 import com.example.pszzapp.data.model.ApiaryModel
-import com.example.pszzapp.presentation.apiary.ApiaryState
 import com.example.pszzapp.presentation.components.ExposedDropdown
 import com.example.pszzapp.presentation.components.FilledButton
-import com.example.pszzapp.presentation.components.HivesLazyColumn
 import com.example.pszzapp.presentation.components.LoadingDialog
 import com.example.pszzapp.presentation.components.TextError
 import com.example.pszzapp.presentation.components.TopBar
+import com.example.pszzapp.presentation.destinations.ApiaryScreenDestination
 import com.example.pszzapp.presentation.hive.create.DataConstants
 import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.ramcosta.composedestinations.annotation.Destination
@@ -76,13 +75,15 @@ fun CreateApiaryLayout(
             TopBar(
                 backNavigation = { resultNavigator.navigateBack() },
                 title = "Dodaj pasiekę",
-                content = {}
+                content = { }
             )
 
             when (createApiaryState) {
                 is CreateApiaryState.Loading -> LoadingDialog(stringResource(R.string.home_loading))
 
                 is CreateApiaryState.Success -> CreateApiaryForm(navigator, viewModel)
+
+                is CreateApiaryState.Redirect -> navigator.navigate(ApiaryScreenDestination(id = createApiaryState.apiaryId))
 
                 is CreateApiaryState.Error -> TextError(createApiaryState.message)
             }
@@ -133,8 +134,10 @@ fun CreateApiaryForm(
             expanded = typeExpanded,
             setExpanded = { typeExpanded = it },
             options = DataConstants.type,
-            selected = type,
-            setSelected = { type = it },
+            selected = apiaryData.type,
+            setSelected = {
+                apiaryData = apiaryData.copy(type = it)
+            },
             label = stringResource(R.string.create_hive_form_type)
         )
 
@@ -143,7 +146,7 @@ fun CreateApiaryForm(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 12.dp),
-            onClick = { viewModel.createApiary()},
+            onClick = { viewModel.createApiary(apiaryData) },
         )
     }
 }

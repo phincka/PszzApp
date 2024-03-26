@@ -3,7 +3,7 @@ package com.example.pszzapp.presentation.apiary
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pszzapp.data.model.HiveModel
-import com.example.pszzapp.domain.usecase.apiary.GetHivesByApiaryIdUseCase
+import com.example.pszzapp.domain.usecase.hive.GetHivesByApiaryIdUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

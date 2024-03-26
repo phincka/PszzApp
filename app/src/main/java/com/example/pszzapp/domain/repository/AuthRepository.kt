@@ -11,5 +11,4 @@ interface AuthRepository {
     suspend fun firebaseSignOut(): AccountUserState
     suspend fun checkEmailVerification(): AuthState
     suspend fun resendVerificationEmail(): AuthState
-
 }

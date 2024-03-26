@@ -125,9 +125,16 @@ fun BottomNavigationBar(
     Scaffold(
         floatingActionButton = {
             if (floatingActionButton.isVisable) {
+                var floatingButtonNavigation = floatingActionButton.direction
+                val routeId = navBackStackEntry?.arguments?.getString("id")
+
+                if (!routeId.isNullOrEmpty()) {
+                    floatingButtonNavigation = "${floatingActionButton.direction.replace("/{id}", "")}/${routeId}"
+                }
+
                 ExtendedFloatingActionButton(
                     onClick = {
-                        navController.navigate(floatingActionButton.direction)
+                        navController.navigate(floatingButtonNavigation)
                     },
                     text = { Text(floatingActionButton.label) },
                     icon = {
