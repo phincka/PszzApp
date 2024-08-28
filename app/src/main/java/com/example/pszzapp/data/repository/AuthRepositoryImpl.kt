@@ -41,7 +41,7 @@ class AuthRepositoryImpl(
     ): AuthState {
         return try {
             firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            AuthState.Success(true)
+            AuthState.Success
         } catch (error: Exception) {
             Log.d("LOG_APP", error.toString())
             AuthState.Error(error.toString())
@@ -61,7 +61,7 @@ class AuthRepositoryImpl(
                 val currentUser = firebaseAuth.currentUser
                 if (currentUser != null) {
                     currentUser.sendEmailVerification().await()
-                    AuthState.Success(true)
+                    AuthState.Success
                 } else {
                     AuthState.Error(context.getString(R.string.auth_state_no_user))
                 }
@@ -88,12 +88,9 @@ class AuthRepositoryImpl(
                 currentUser.reload().await()
 
                 if (currentUser.isEmailVerified) {
-                    AuthState.Success(true)
+                    AuthState.Success
                 } else {
-                    AuthState.Success(
-                        false,
-                        message = context.getString(R.string.auth_state_verification_error)
-                    )
+                    AuthState.Error(context.getString(R.string.auth_state_verification_error))
                 }
             } catch (e: Exception) {
                 AuthState.Error("${context.getString(R.string.auth_state_update_error)} ${e.message}")
@@ -109,10 +106,7 @@ class AuthRepositoryImpl(
         return if (currentUser != null) {
             try {
                 currentUser.sendEmailVerification()
-                AuthState.Success(
-                    success = false,
-                    message = context.getString(R.string.auth_state_email_send)
-                )
+                AuthState.Success
             } catch (e: Exception) {
                 AuthState.Error("${context.getString(R.string.auth_state_email_not_send)} ${e.message}")
             }

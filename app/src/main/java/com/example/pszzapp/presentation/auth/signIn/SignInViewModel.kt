@@ -14,7 +14,7 @@ import org.koin.android.annotation.KoinViewModel
 class SignInViewModel(
     private val signInUseCase: SignInUseCase,
 ): ViewModel() {
-    private val _state: MutableStateFlow<AuthState> = MutableStateFlow(AuthState.Success(false))
+    private val _state: MutableStateFlow<AuthState> = MutableStateFlow(AuthState.None)
     val signInState: StateFlow<AuthState> = _state
 
     fun signIn(

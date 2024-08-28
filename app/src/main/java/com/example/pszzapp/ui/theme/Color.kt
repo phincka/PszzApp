@@ -2,10 +2,151 @@ package com.example.pszzapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val lightColors = AppColors(
+    primary100 = Color(0xFF711F1F),
+    primary90 = Color(0xFF882525),
+    primary80 = Color(0xFF9E2B2B),
+    primary70 = Color(0xFFB53232),
+    primary60 = Color(0xFFCB3838),
+    primary50 = Color(0xFFE23E3E),
+    primary40 = Color(0xFFE86565),
+    primary30 = Color(0xFFEE8B8B),
+    primary20 = Color(0xFFF3B2B2),
+    primary10 = Color(0xFFF9D8D8),
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+    neutral100 = Color(0xFF181818),
+    neutral90 = Color(0xFF303030),
+    neutral80 = Color(0xFF484848),
+    neutral70 = Color(0xFF606060),
+    neutral60 = Color(0xFF797979),
+    neutral50 = Color(0xFF919191),
+    neutral40 = Color(0xFFA9A9A9),
+    neutral30 = Color(0xFFC1C1C1),
+    neutral20 = Color(0xFFD9D9D9),
+    neutral10 = Color(0xFFF1F1F1),
+
+    rating = Color(0xFFFFB661),
+    yellow = Color(0xFFFFD233),
+
+    error = Color(0xFF804E00),
+    error10 = Color(0xFF995E00),
+
+    green100 = Color(0xFF31B057),
+    green10 = Color(0xFFEAF7EE),
+
+
+    purple = Color(0xFF7F56D9),
+    purpleLight = Color(0xFFB692F6),
+    purpleWhite = Color(0xFFF9F5FF),
+    purple50 = Color(0XFFd6bbfb),
+    black = Color(0xFF344054),
+    black90 = Color(0xFF101828),
+    white = Color(0xFFffffff),
+    red = Color(0xffff5c51),
+    green = Color(0xFF61CA8B),
+    grey = Color(0xFF667085),
+    grey50 = Color(0xFFEAECF0),
+    gray30 = Color(0XFFD0D5DD),
+    grey20 = Color(0xFFFCFCFD),
+    grey10 = Color(0XFFF2F4F7),
+    grey5 = Color(0XFFf9fafb),
+)
+
+val darkColors = AppColors(
+    primary100 = Color(0xFF711F1F),
+    primary90 = Color(0xFF882525),
+    primary80 = Color(0xFF9E2B2B),
+    primary70 = Color(0xFFB53232),
+    primary60 = Color(0xFFCB3838),
+    primary50 = Color(0xFFE23E3E),
+    primary40 = Color(0xFFE86565),
+    primary30 = Color(0xFFEE8B8B),
+    primary20 = Color(0xFFF3B2B2),
+    primary10 = Color(0xFFF9D8D8),
+
+    neutral100 = Color(0xFF181818),
+    neutral90 = Color(0xFF303030),
+    neutral80 = Color(0xFF484848),
+    neutral70 = Color(0xFF606060),
+    neutral60 = Color(0xFF797979),
+    neutral50 = Color(0xFF919191),
+    neutral40 = Color(0xFFA9A9A9),
+    neutral30 = Color(0xFFC1C1C1),
+    neutral20 = Color(0xFFD9D9D9),
+    neutral10 = Color(0xFFF1F1F1),
+
+    rating = Color(0xFFFFB661),
+    yellow = Color(0xFFFFD233),
+
+    error = Color(0xFF804E00),
+    error10 = Color(0xFF995E00),
+
+    green100 = Color(0xFF31B057),
+    green10 = Color(0xFFEAF7EE),
+
+
+    purple = Color(0xFF7F56D9),
+    purpleLight = Color(0xFFB692F6),
+    purpleWhite = Color(0xFFF9F5FF),
+    purple50 = Color(0XFFd6bbfb),
+    black = Color(0xFF344054),
+    black90 = Color(0xFF101828),
+    white = Color(0xFFffffff),
+    red = Color(0xffff5c51),
+    green = Color(0xFF61CA8B),
+    grey = Color(0xFF667085),
+    grey50 = Color(0xFFEAECF0),
+    gray30 = Color(0XFFD0D5DD),
+    grey20 = Color(0xFFFCFCFD),
+    grey10 = Color(0XFFF2F4F7),
+    grey5 = Color(0XFFf9fafb),
+)
+
+data class AppColors(
+    val primary100: Color,
+    val primary90: Color,
+    val primary80: Color,
+    val primary70: Color,
+    val primary60: Color,
+    val primary50: Color,
+    val primary40: Color,
+    val primary30: Color,
+    val primary20: Color,
+    val primary10: Color,
+
+    val neutral100: Color,
+    val neutral90: Color,
+    val neutral80: Color,
+    val neutral70: Color,
+    val neutral60: Color,
+    val neutral50: Color,
+    val neutral40: Color,
+    val neutral30: Color,
+    val neutral20: Color,
+    val neutral10: Color,
+
+    val rating: Color,
+    val yellow: Color,
+
+    val error: Color,
+    val error10: Color,
+
+    val green100: Color,
+    val green10: Color,
+
+    val purple: Color,
+    val purpleLight: Color,
+    val purpleWhite: Color,
+    val purple50: Color,
+    val black: Color,
+    val black90: Color,
+    val white: Color,
+    val red: Color,
+    val green: Color,
+    val grey: Color,
+    val grey50: Color,
+    val gray30: Color,
+    val grey20: Color,
+    val grey10: Color,
+    val grey5: Color,
+)

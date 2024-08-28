@@ -1,4 +1,4 @@
-package com.example.pszzapp.presentation.auth.signIn
+package com.example.pszzapp.presentation.auth.base
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,7 +13,7 @@ import org.koin.android.annotation.KoinViewModel
 class BaseAuthViewModel(
     private val signInUseCase: SignInUseCase,
 ): ViewModel() {
-    private val _state: MutableStateFlow<AuthState> = MutableStateFlow(AuthState.Success(false))
+    private val _state: MutableStateFlow<AuthState> = MutableStateFlow(AuthState.Success)
     val signInState: StateFlow<AuthState> = _state
 
 

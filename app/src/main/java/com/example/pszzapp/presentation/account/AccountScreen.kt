@@ -63,14 +63,13 @@ fun AccountLayout(
             TopBar(
                 backNavigation = { resultNavigator.navigateBack() },
                 title = "Konto",
-                content = { }
             )
 
             Column(
                 modifier = Modifier.padding(12.dp)
             ) {
                 when (accountUserState) {
-                    is AccountUserState.Loading -> LoadingDialog(stringResource(R.string.home_loading))
+                    is AccountUserState.Loading -> LoadingDialog()
 
                     is AccountUserState.SignedInState -> {
                         FilledButton(

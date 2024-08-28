@@ -8,10 +8,10 @@ import com.example.pszzapp.data.model.UserModel
 //)
 
 sealed class AuthState {
+    data object None : AuthState()
+
     data object Loading: AuthState()
-
-    data class Success(val success: Boolean , val message: String = ""): AuthState()
-
+    data object Success: AuthState()
     data class Error(val error: String): AuthState()
 }
 

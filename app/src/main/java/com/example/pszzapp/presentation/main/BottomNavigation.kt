@@ -2,51 +2,50 @@ package com.example.pszzapp.presentation.main
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.AddCard
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.pszzapp.presentation.destinations.AccountScreenDestination
 import com.example.pszzapp.presentation.destinations.ApiariesScreenDestination
 import com.example.pszzapp.presentation.destinations.ApiaryScreenDestination
-import com.example.pszzapp.presentation.destinations.CreateApiaryScreenDestination
-import com.example.pszzapp.presentation.destinations.CreateHiveScreenDestination
 import com.example.pszzapp.presentation.destinations.DashboardScreenDestination
 import com.example.pszzapp.presentation.destinations.HiveScreenDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.example.pszzapp.presentation.destinations.OverviewScreenDestination
+import com.example.pszzapp.presentation.destinations.QrScannerScreenDestination
 import com.ramcosta.composedestinations.navigation.clearBackStack
 import com.ramcosta.composedestinations.navigation.popBackStack
 import com.ramcosta.composedestinations.navigation.popUpTo
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.spec.Route
 
-data class FloatingActionButton(
-    val isVisable: Boolean,
-    val direction: String,
-    val label: String,
-)
 
 enum class BottomNavigationItems(
     val direction: Route,
@@ -60,14 +59,24 @@ enum class BottomNavigationItems(
     ),
     Apiaries(
         direction = ApiariesScreenDestination,
-        icon = Icons.Default.Email,
-        label = "Apiaries",
+        icon = Icons.Default.AddCard,
+        label = "Pasieki",
+    ),
+    QrScanner(
+        direction = QrScannerScreenDestination,
+        icon = Icons.Default.CameraAlt,
+        label = "Skaner",
+    ),
+    Notifications(
+        direction = AccountScreenDestination,
+        icon = Icons.Default.Notifications,
+        label = "Powiadomienia",
     ),
     Account(
         direction = AccountScreenDestination,
         icon = Icons.Default.AccountCircle,
         label = "Konto",
-    )
+    ),
 }
 
 enum class VisibleBottomBarDestination(val route: String) {
@@ -75,32 +84,12 @@ enum class VisibleBottomBarDestination(val route: String) {
     Apiaries(ApiariesScreenDestination.route),
     Apiary(ApiaryScreenDestination.route),
     Hive(HiveScreenDestination.route),
+    Overview(OverviewScreenDestination.route),
+    QrScanner(QrScannerScreenDestination.route),
     Account(AccountScreenDestination.route);
 
     companion object {
         fun find(route: String): VisibleBottomBarDestination? = entries.find { it.route == route }
-    }
-}
-
-enum class VisibleFloatingActionButton(
-    val route: String,
-    val direction: String,
-    val label: String
-) {
-    Apiaries(
-        route = ApiariesScreenDestination.route,
-        direction = CreateApiaryScreenDestination.route,
-        label = "Dodaj pasiekę"
-    ),
-    Apiary(
-        route = ApiaryScreenDestination.route,
-        direction = CreateHiveScreenDestination.route,
-        label = "Dodaj Ul"
-    );
-
-    companion object {
-        fun find(route: String, navigate: String): VisibleFloatingActionButton? =
-            entries.find { it.route == route }
     }
 }
 
@@ -116,49 +105,21 @@ fun BottomNavigationBar(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val showBottomBar = shouldShowBottomBarByDestination(currentDestinationRoute = currentRoute)
-    val floatingActionButton = showFloatingActionButton(currentDestinationRoute = currentRoute)
     val bottomBarOffset by animateDpAsState(
         targetValue = getBottomBarOffset(showBottomBar),
         label = ""
     )
 
     Scaffold(
-        floatingActionButton = {
-            if (floatingActionButton.isVisable) {
-                var floatingButtonNavigation = floatingActionButton.direction
-                val routeId = navBackStackEntry?.arguments?.getString("id")
-
-                if (!routeId.isNullOrEmpty()) {
-                    floatingButtonNavigation = "${floatingActionButton.direction.replace("/{id}", "")}/${routeId}"
-                }
-
-                ExtendedFloatingActionButton(
-                    onClick = {
-                        navController.navigate(floatingButtonNavigation)
-                    },
-                    text = { Text(floatingActionButton.label) },
-                    icon = {
-                        Icon(
-                            Icons.Filled.Add,
-                            contentDescription = null
-                        )
-                    },
-                )
-            }
-        },
-
         bottomBar = {
             currentRoute?.let {
-                Column(modifier = Modifier.offset {
+                Column(modifier = Modifier
+                    .offset {
                     IntOffset(
                         x = 0,
                         y = bottomBarOffset.roundToPx()
                     )
                 }) {
-                    Divider(
-                        color = Color.LightGray,
-                        thickness = DIVIDER_HEIGHT
-                    )
                     NavigationBar(
                         modifier = Modifier.height(BOTTOM_BAR_HEIGHT)
                     ) {
@@ -178,7 +139,7 @@ fun BottomNavigationBar(
 
                             NavigationBarItem(
                                 icon = { Icon(item.icon, contentDescription = item.label) },
-                                label = { Text(item.label) },
+//                                label = { Text(item.label) },
                                 selected = isSelected,
                                 onClick = {
                                     if (isSelected) {
@@ -196,26 +157,12 @@ fun BottomNavigationBar(
                 }
             }
         },
-        content = { content() }
+        content = { content() },
     )
 }
 
 private fun shouldShowBottomBarByDestination(currentDestinationRoute: String?): Boolean =
     VisibleBottomBarDestination.entries.map { it.route }.contains(currentDestinationRoute)
-
-private fun showFloatingActionButton(currentDestinationRoute: String?): FloatingActionButton {
-    VisibleFloatingActionButton.entries.map { it.route }.indexOf(currentDestinationRoute).let {
-        return if (it != -1) {
-            FloatingActionButton(
-                true,
-                VisibleFloatingActionButton.entries[it].direction,
-                VisibleFloatingActionButton.entries[it].label
-            )
-        } else {
-            FloatingActionButton(false, "", "")
-        }
-    }
-}
 
 private fun getBottomBarOffset(isBottomBarVisible: Boolean) = when (isBottomBarVisible) {
     true -> 0.dp
@@ -254,8 +201,21 @@ fun Modifier.bottomBarPadding(navController: NavController): Modifier {
     )
 
     return if (showBottomBar) {
-        padding(bottom = getBottomBarOffset(isBottomBarVisible = false))
+        padding(bottom = getBottomBarOffset(isBottomBarVisible = false), top = 8.dp)
     } else {
         this
     }
+}
+
+@Composable
+fun getSystemBottomBarHeight(): Dp {
+    val view = LocalView.current
+    val density = LocalDensity.current
+
+    // Get WindowInsets for the current view
+    val insets = ViewCompat.getRootWindowInsets(view)
+    val bottomBarHeightPx = insets?.getInsets(WindowInsetsCompat.Type.systemBars())?.bottom ?: 0
+
+    // Convert the pixel value to dp
+    return with(density) { bottomBarHeightPx.toDp() }
 }
