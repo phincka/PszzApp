@@ -139,7 +139,7 @@ fun HiveScreen(
                 ButtonTile(
                     title = "Przypomnienia",
                     icon = R.drawable.ic_tile_button,
-                    direction = CreateApiaryScreenDestination,
+                    direction = CreateApiaryScreenDestination(),
                 ),
             )
             if (lastOverviewIdState is LastOverviewIdState.Success && lastOverviewIdState.overviewId != null) {

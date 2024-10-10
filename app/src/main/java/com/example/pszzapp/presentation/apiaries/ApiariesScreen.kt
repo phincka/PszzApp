@@ -71,7 +71,7 @@ fun ApiariesScreen(
         DropdownMenuItemData(
             icon = Icons.Outlined.PinDrop,
             text = "Dodaj pasiekę",
-            onClick = { navigator.navigate(CreateApiaryScreenDestination) }
+            onClick = { navigator.navigate(CreateApiaryScreenDestination()) }
         ),
     )
 

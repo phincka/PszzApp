@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.pszzapp.data.model.ApiaryModel
 import com.example.pszzapp.data.util.AccountUserState
 import com.example.pszzapp.domain.usecase.apiary.CreateApiaryUseCase
+import com.example.pszzapp.domain.usecase.apiary.EditApiaryUseCase
 import com.example.pszzapp.domain.usecase.auth.GetCurrentUserUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +18,7 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class CreateApiaryViewModel(
     private val createApiaryUseCase: CreateApiaryUseCase,
+    private var editApiaryUseCase: EditApiaryUseCase,
 ) : ViewModel() {
     private val _createApiaryState: MutableStateFlow<CreateApiaryState> = MutableStateFlow(CreateApiaryState.None)
     val createApiaryState: StateFlow<CreateApiaryState> = _createApiaryState
@@ -25,6 +27,13 @@ class CreateApiaryViewModel(
         viewModelScope.launch {
             _createApiaryState.value = CreateApiaryState.Loading
             _createApiaryState.value = createApiaryUseCase(apiaryData)
+        }
+    }
+
+    fun editApiary(apiaryData: ApiaryModel) {
+        viewModelScope.launch {
+            _createApiaryState.value = CreateApiaryState.Loading
+            _createApiaryState.value = editApiaryUseCase(apiaryData)
         }
     }
 }

@@ -58,6 +58,7 @@ import com.example.pszzapp.presentation.components.TextError
 import com.example.pszzapp.presentation.dashboard.BackgroundShapes
 import com.example.pszzapp.presentation.dashboard.CircleTopBar
 import com.example.pszzapp.presentation.destinations.ApiariesScreenDestination
+import com.example.pszzapp.presentation.destinations.CreateApiaryScreenDestination
 import com.example.pszzapp.presentation.destinations.CreateHiveStep1ScreenDestination
 import com.example.pszzapp.presentation.destinations.DashboardScreenDestination
 import com.example.pszzapp.presentation.destinations.HiveScreenDestination
@@ -100,41 +101,6 @@ fun ApiaryScreen(
         }
     }
 
-    val menuItems = listOf(
-        DropdownMenuItemData(
-            icon = Icons.Outlined.Edit,
-            text = "Dodaj ul",
-            onClick = { destinationsNavigator.navigate(CreateHiveStep1ScreenDestination(apiaryId = id)) }
-        ),
-        DropdownMenuItemData(
-            icon = Icons.Outlined.Edit,
-            text = "Edytuj pasiekę",
-            onClick = { }
-        ),
-//        DropdownMenuItemData(
-//            icon = Icons.Outlined.PinDrop,
-//            text = "Dodaj lokalizację",
-//            onClick = { }
-//        ),
-//        DropdownMenuItemData(
-//            icon = Icons.Outlined.WbSunny,
-//            text = "Sprawdź pogodę",
-//            onClick = { }
-//        ),
-//        DropdownMenuItemData(
-//            icon = Icons.Outlined.AttachEmail,
-//            text = "Wyślij raport z pasieki",
-//            onClick = { }
-//        ),
-        DropdownMenuItemData(
-            icon = Icons.Outlined.Clear,
-            text = stringResource(R.string.hive_nav_remove_hive),
-            onClick = {
-                isModalActive = true
-            }
-        ),
-    )
-
     Box(
         modifier = Modifier
             .bottomBarPadding(navController = navController)
@@ -146,7 +112,6 @@ fun ApiaryScreen(
             when (apiaryState) {
                 is ApiaryState.Success -> {
                     ApiaryLayout(
-                        menuItems = menuItems,
                         isDropdownMenuVisible = isDropdownMenuVisible,
                         setDropdownMenuVisible = { isDropdownMenuVisible = it },
                         isModalActive = isModalActive,
@@ -161,6 +126,8 @@ fun ApiaryScreen(
                         navToQrScannerScreen = destinationsNavigator::navToQrScannerScreen,
                         navToHive = destinationsNavigator::navToHiveScreen,
                         navToDashboard = destinationsNavigator::navToDashboard,
+                        navToEditApiary = destinationsNavigator::navToEditApiary,
+                        navToCreateHive = destinationsNavigator::navToCreateHive,
                     )
                 }
 
@@ -181,7 +148,6 @@ fun ApiaryScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ApiaryLayout(
-    menuItems: List<DropdownMenuItemData>,
     isDropdownMenuVisible: Boolean,
     setDropdownMenuVisible: (Boolean) -> Unit,
     isModalActive: Boolean,
@@ -196,11 +162,46 @@ fun ApiaryLayout(
     navToQrScannerScreen: () -> Unit,
     navToHive: (String) -> Unit,
     navToDashboard: () -> Unit,
+    navToEditApiary: (ApiaryModel) -> Unit,
+    navToCreateHive: (String) -> Unit,
 ) {
     var titlesState by remember { mutableIntStateOf(0) }
     val titles = listOf(
         "Ule",
         "Zbiory"
+    )
+
+    val menuItems = listOf(
+        DropdownMenuItemData(
+            icon = Icons.Outlined.Edit,
+            text = "Dodaj ul",
+            onClick = { navToCreateHive(apiary.id) }
+        ),
+        DropdownMenuItemData(
+            icon = Icons.Outlined.Edit,
+            text = "Edytuj pasiekę",
+            onClick = { navToEditApiary(apiary) }
+        ),
+//        DropdownMenuItemData(
+//            icon = Icons.Outlined.PinDrop,
+//            text = "Dodaj lokalizację",
+//            onClick = { }
+//        ),
+//        DropdownMenuItemData(
+//            icon = Icons.Outlined.WbSunny,
+//            text = "Sprawdź pogodę",
+//            onClick = { }
+//        ),
+//        DropdownMenuItemData(
+//            icon = Icons.Outlined.AttachEmail,
+//            text = "Wyślij raport z pasieki",
+//            onClick = { }
+//        ),
+        DropdownMenuItemData(
+            icon = Icons.Outlined.Clear,
+            text = stringResource(R.string.hive_nav_remove_hive),
+            onClick = { setModal(true) }
+        ),
     )
 
     CircleTopBar(
@@ -369,7 +370,15 @@ fun ApiaryLayout(
     )
 }
 
+private fun DestinationsNavigator.navToCreateHive(apiaryId: String) =
+    navigate(CreateHiveStep1ScreenDestination(apiaryId))
+
+private fun DestinationsNavigator.navToEditApiary(apiaryModel: ApiaryModel) =
+    navigate(CreateApiaryScreenDestination(apiaryModel))
+
 private fun DestinationsNavigator.navToQrScannerScreen() = navigate(QrScannerScreenDestination)
 private fun DestinationsNavigator.navToApiariesScreen() = navigate(ApiariesScreenDestination)
-private fun DestinationsNavigator.navToHiveScreen(hiveId: String) = navigate(HiveScreenDestination(hiveId))
+private fun DestinationsNavigator.navToHiveScreen(hiveId: String) =
+    navigate(HiveScreenDestination(hiveId))
+
 fun DestinationsNavigator.navToDashboard() = navigate(DashboardScreenDestination)

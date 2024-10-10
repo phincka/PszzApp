@@ -80,7 +80,7 @@ fun DashboardScreen(
         ButtonTile(
             title = "Masowe działania",
             icon = R.drawable.ic_tile_button,
-            direction = CreateApiaryScreenDestination,
+            direction = CreateApiaryScreenDestination(),
         )
     )
 

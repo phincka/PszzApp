@@ -14,4 +14,8 @@ data class ApiaryModel(
     val hivesCount: Int ?= null,
     val timestamp: Timestamp ?= null,
     val lastOverview: LocalDate?= null,
-) : Parcelable
+) : Parcelable {
+    constructor() : this(
+        "", "", "", 0, "", null, null, null
+    )
+}

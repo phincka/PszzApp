@@ -8,5 +8,6 @@ interface ApiaryRepository {
     suspend fun getApiaries(): List<ApiaryModel>
     suspend fun getApiaryById(apiaryId: String): ApiaryModel?
     suspend fun createApiary(apiaryModel: ApiaryModel): CreateApiaryState
+    suspend fun editApiary(apiaryModel: ApiaryModel): CreateApiaryState
     suspend fun removeApiary(apiaryId: String): RemoveApiaryState
 }

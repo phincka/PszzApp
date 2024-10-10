@@ -159,6 +159,28 @@ class ApiaryRepositoryImpl(
             }
         }
 
+    override suspend fun editApiary(apiaryModel: ApiaryModel): CreateApiaryState =
+        suspendCancellableCoroutine { continuation ->
+            if (firebaseAuth.currentUser != null) {
+                firebaseAuth.currentUser?.let {
+                    firebaseFireStore
+                        .collection("apiaries")
+                        .document(apiaryModel.id)
+                        .update(
+                            mapOf(
+                                "name" to apiaryModel.name,
+                                "type" to apiaryModel.type,
+                                "location" to apiaryModel.location,
+                            ),
+                        )
+
+                    continuation.resume(CreateApiaryState.Redirect(apiaryId = apiaryModel.id))
+                }
+            } else {
+                continuation.resume(CreateApiaryState.Error("hive_state_no_user"))
+            }
+        }
+
     override suspend fun removeApiary(
         apiaryId: String,
     ): RemoveApiaryState =
