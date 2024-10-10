@@ -1,22 +1,14 @@
 package com.example.pszzapp.presentation.hive
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
+import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AttachEmail
 import androidx.compose.material.icons.outlined.Clear
@@ -24,11 +16,9 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.PinDrop
 import androidx.compose.material.icons.outlined.WbSunny
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -36,22 +26,17 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.pszzapp.R
 import com.example.pszzapp.data.model.HiveModel
 import com.example.pszzapp.data.util.DropdownMenuItemData
-import com.example.pszzapp.presentation.apiaries.EmptyList
-import com.example.pszzapp.presentation.components.HivesLazyColumn
 import com.example.pszzapp.presentation.components.LoadingDialog
 import com.example.pszzapp.presentation.components.OverviewsLazyColumn
 import com.example.pszzapp.presentation.components.TextError
@@ -59,18 +44,18 @@ import com.example.pszzapp.presentation.components.TopBar
 import com.example.pszzapp.presentation.dashboard.BackgroundShapes
 import com.example.pszzapp.presentation.dashboard.ButtonTile
 import com.example.pszzapp.presentation.dashboard.ButtonTiles
-import com.example.pszzapp.presentation.dashboard.LastOverviews
+import com.example.pszzapp.presentation.dashboard.navToOverview
 import com.example.pszzapp.presentation.destinations.ApiariesScreenDestination
 import com.example.pszzapp.presentation.destinations.CreateApiaryScreenDestination
 import com.example.pszzapp.presentation.destinations.CreateOverviewStep1ScreenDestination
-import com.example.pszzapp.presentation.destinations.DashboardScreenDestination
-import com.example.pszzapp.presentation.destinations.QrScannerScreenDestination
+import com.example.pszzapp.presentation.destinations.FeedingScreenDestination
+import com.example.pszzapp.presentation.destinations.OverviewScreenDestination
+import com.example.pszzapp.presentation.destinations.TreatmentScreenDestination
 import com.example.pszzapp.presentation.hive.create.CreateHiveConstants
 import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.example.pszzapp.ui.theme.AppTheme
 import com.example.pszzapp.ui.theme.Typography
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import org.koin.androidx.compose.koinViewModel
@@ -84,17 +69,17 @@ fun HiveScreen(
     navigator: DestinationsNavigator,
     resultNavigator: ResultBackNavigator<Boolean>,
     navController: NavController,
-    hiveViewModel: HiveViewModel = koinViewModel(parameters = { parametersOf(id) })
+    viewModel: HiveViewModel = koinViewModel(parameters = { parametersOf(id) })
 ) {
-    val hiveState = hiveViewModel.hiveState.collectAsState().value
-    val overviewsState = hiveViewModel.overviewsState.collectAsState().value
+    val hiveState = viewModel.hiveState.collectAsState().value
+    val overviewsState = viewModel.overviewsState.collectAsState().value
+    val lastOverviewIdState = viewModel.lastOverviewIdState.collectAsState().value
 
     var isModalActive by remember { mutableStateOf(false) }
 
-
-
     when (hiveState) {
         is HiveState.Success -> {
+            val hiveId = hiveState.hive.id
             val menuItems = listOf(
                 DropdownMenuItemData(
                     icon = Icons.Outlined.Edit,
@@ -132,34 +117,24 @@ fun HiveScreen(
                 ),
             )
 
-            val buttonTilesNavigation = listOf(
-                ButtonTile(
-                    title = "Raport",
-                    icon = R.drawable.ic_tile_button,
-                    direction = ApiariesScreenDestination,
-                ),
+            val buttonTilesNavigation = mutableListOf(
                 ButtonTile(
                     title = "Dodaj przegląd",
                     icon = R.drawable.ic_tile_button,
                     direction = CreateOverviewStep1ScreenDestination(
-                        hiveId = hiveState.hive.id,
+                        hiveId = hiveId,
                         apiaryId = hiveState.hive.apiaryId
                     ),
                 ),
                 ButtonTile(
                     title = "Leczenie",
                     icon = R.drawable.ic_tile_button,
-                    direction = ApiariesScreenDestination,
+                    direction = TreatmentScreenDestination(hiveId = hiveId),
                 ),
                 ButtonTile(
                     title = "Karmienie",
                     icon = R.drawable.ic_tile_button,
-                    direction = CreateApiaryScreenDestination,
-                ),
-                ButtonTile(
-                    title = "Zbiory",
-                    icon = R.drawable.ic_tile_button,
-                    direction = ApiariesScreenDestination,
+                    direction = FeedingScreenDestination(hiveId = hiveId),
                 ),
                 ButtonTile(
                     title = "Przypomnienia",
@@ -167,6 +142,16 @@ fun HiveScreen(
                     direction = CreateApiaryScreenDestination,
                 ),
             )
+            if (lastOverviewIdState is LastOverviewIdState.Success && lastOverviewIdState.overviewId != null) {
+                buttonTilesNavigation.add(
+                    0,
+                    ButtonTile(
+                        title = "Raport",
+                        icon = R.drawable.ic_tile_button,
+                        direction = OverviewScreenDestination(overviewId = lastOverviewIdState.overviewId),
+                    )
+                )
+            }
 
             HiveLayout(
                 navController = navController,
@@ -178,8 +163,10 @@ fun HiveScreen(
                 overviewsState = overviewsState,
                 navigator = navigator,
                 buttonTilesNavigation = buttonTilesNavigation,
+                geOverviewsByHiveId = viewModel::geOverviewsByHiveId,
             )
         }
+
         is HiveState.Loading -> LoadingDialog()
         is HiveState.Error -> TextError(hiveState.message)
     }
@@ -198,13 +185,21 @@ fun HiveLayout(
     overviewsState: OverviewsState,
     navigator: DestinationsNavigator,
     buttonTilesNavigation: List<ButtonTile>,
+    geOverviewsByHiveId: (String) -> Unit,
 ) {
     var isDropdownMenuVisible by remember { mutableStateOf(false) }
 
     var titlesState by remember { mutableIntStateOf(0) }
     val titles = listOf(
-        "Informacje z pasieki",
-        "Przeglądy"
+        TitleTab(
+            title = "Informacje z pasieki",
+        ),
+        TitleTab(
+            title = "Przeglądy",
+            onClick = {
+                geOverviewsByHiveId(hive.id)
+            },
+        )
     )
 
     Box(
@@ -223,7 +218,7 @@ fun HiveLayout(
                 menuItems = menuItems,
                 isModalActive = isModalActive,
                 setModal = setModal,
-                onSettingsClick = {isDropdownMenuVisible = true },
+                onSettingsClick = { isDropdownMenuVisible = true },
                 onNotification = {},
             )
 
@@ -234,13 +229,16 @@ fun HiveLayout(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                 containerColor = Color.Transparent,
             ) {
-                titles.forEachIndexed { index, title ->
+                titles.forEachIndexed { index, titleTab ->
                     Tab(
                         selected = titlesState == index,
-                        onClick = { titlesState = index },
+                        onClick = {
+                            titlesState = index
+                            titleTab.onClick?.let { it() }
+                        },
                         text = {
                             Text(
-                                text = title,
+                                text = titleTab.title,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 style = Typography.small,
@@ -272,34 +270,25 @@ fun HiveLayout(
                 }
 
                 1 -> {
+                    when (overviewsState) {
+                        is OverviewsState.Success -> {
+                            OverviewsLazyColumn(
+                                overviews = overviewsState.overviews,
+                                navToOverview = navigator::navToOverview
+                            )
+                        }
 
-                    LastOverviews(
-                        sectionTitle = "Ostatnie przeglądy",
-                        navigator = navigator,
-                    )
-
-//                    Text(text = hive.name)
-//                    Spacer(modifier = Modifier.height(24.dp))
-//
-//
-//                    when (overviewsState) {
-//                        is OverviewsState.Success -> {
-//                            Text(text = "Ostatnie przeglądy")
-//                            Spacer(modifier = Modifier.height(16.dp))
-//                            OverviewsLazyColumn(
-//                                overviews = overviewsState.overviews,
-//                                navigator = navigator
-//                            )
-//                        }
-//
-//                        is OverviewsState.Loading -> LoadingDialog()
-//                        is OverviewsState.Error -> TextError(overviewsState.message)
-//                    }
+                        is OverviewsState.Loading -> LoadingDialog()
+                        is OverviewsState.Error -> TextError(overviewsState.message)
+                        is OverviewsState.None -> Unit
+                    }
                 }
             }
-
-
-
         }
     }
 }
+
+data class TitleTab(
+    val title: String,
+    val onClick: (() -> Unit)? = null,
+)

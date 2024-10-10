@@ -3,24 +3,10 @@ package com.example.pszzapp.presentation.qrScanner
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.pszzapp.data.model.ApiaryModel
 import com.example.pszzapp.data.model.HiveModel
-import com.example.pszzapp.domain.usecase.apiary.GetApiaryByIdUseCase
 import com.example.pszzapp.domain.usecase.hive.GetHiveByIdUseCase
-import com.example.pszzapp.domain.usecase.hive.GetHivesByApiaryIdUseCase
-import com.example.pszzapp.domain.usecase.overview.GetOverviewsByHiveIdUseCase
-import com.example.pszzapp.presentation.hive.HiveState
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 

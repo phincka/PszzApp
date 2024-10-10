@@ -22,7 +22,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 @Composable
 fun HivesLazyColumn(
     hives: List<HiveModel>,
-    navigator : DestinationsNavigator
+    navToHive : (String) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
@@ -36,7 +36,7 @@ fun HivesLazyColumn(
                 title = hive.name,
                 info = "hive_info",
                 hiveType = stringResource(CreateHiveConstants.familyType[hive.familyType]),
-                onClick = { navigator.navigate(HiveScreenDestination(hive.id)) },
+                onClick = { navToHive(hive.id) },
             )
         }
         item {

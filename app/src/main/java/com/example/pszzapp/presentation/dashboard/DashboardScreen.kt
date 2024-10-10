@@ -37,16 +37,20 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.pszzapp.R
+import com.example.pszzapp.data.model.ListItemOverviewModel
+import com.example.pszzapp.data.model.UserModel
 import com.example.pszzapp.data.util.AccountUserState
 import com.example.pszzapp.data.util.DropdownMenuItemData
 import com.example.pszzapp.presentation.auth.base.VerticalSpacer
 import com.example.pszzapp.presentation.components.Dropdown
 import com.example.pszzapp.presentation.components.LoadingDialog
+import com.example.pszzapp.presentation.components.OverviewsLazyColumn
 import com.example.pszzapp.presentation.components.TextError
 import com.example.pszzapp.presentation.destinations.ApiariesScreenDestination
 import com.example.pszzapp.presentation.destinations.BaseAuthScreenDestination
 import com.example.pszzapp.presentation.destinations.CreateApiaryScreenDestination
 import com.example.pszzapp.presentation.destinations.DashboardScreenDestination
+import com.example.pszzapp.presentation.destinations.OverviewScreenDestination
 import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.example.pszzapp.ui.theme.AppTheme
 import com.example.pszzapp.ui.theme.Typography
@@ -58,13 +62,15 @@ import org.koin.androidx.compose.koinViewModel
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Destination
-@Composable
 @RootNavGraph(start = true)
+@Composable
 fun DashboardScreen(
-    navigator: DestinationsNavigator,
+    destinationsNavigator: DestinationsNavigator,
     viewModel: DashboardViewModel = koinViewModel(),
     navController: NavController,
 ) {
+    val lastOverviewsState = viewModel.lastOverviewsState.collectAsState().value
+
     val buttonTilesNavigation = listOf(
         ButtonTile(
             title = "Twoje pasieki",
@@ -84,15 +90,19 @@ fun DashboardScreen(
             .fillMaxSize()
     ) {
         BackgroundShapes()
+
         when (val accountUserState = viewModel.accountUserState.collectAsState().value) {
             is AccountUserState.Loading -> LoadingDialog()
 
             is AccountUserState.SignedInState -> DashboardLayout(
-                navigator = navigator,
-                buttonTilesNavigation = buttonTilesNavigation
+                buttonTilesNavigation = buttonTilesNavigation,
+                lastOverviewsState = lastOverviewsState,
+                navToOverview = destinationsNavigator::navToOverview,
+                navigator = destinationsNavigator,
+                user = accountUserState.user,
             )
 
-            is AccountUserState.GuestState -> navigator.navigate(BaseAuthScreenDestination)
+            is AccountUserState.GuestState -> destinationsNavigator.navToBaseAuth()
 
             is AccountUserState.Error -> TextError(accountUserState.message)
 
@@ -104,14 +114,18 @@ fun DashboardScreen(
 
 @Composable
 fun DashboardLayout(
-    navigator: DestinationsNavigator,
     buttonTilesNavigation: List<ButtonTile>,
+    lastOverviewsState: LastOverviewsState,
+    navToOverview: (String) -> Unit,
+    navigator: DestinationsNavigator,
+    user: UserModel,
 ) {
     Column {
         CircleTopBar(
-            circleText = "P",
-            title = "Cześć Paweł!",
+            circleText = user.name.first().uppercase(),
+            title = user.name,
             subtitle = "Śledź każdy etap rozwoju rodziny pszczeliej",
+            showSubtitle = true,
         )
 
         ButtonTiles(
@@ -126,7 +140,9 @@ fun DashboardLayout(
 
         LastOverviews(
             sectionTitle = "Ostatnie przeglądy",
-            navigator = navigator,
+            lastOverviewsList = if (lastOverviewsState is LastOverviewsState.Success) lastOverviewsState.overviews else null,
+            isLoading = lastOverviewsState is LastOverviewsState.Loading,
+            navToOverview = navToOverview,
         )
     }
 }
@@ -176,7 +192,7 @@ fun CircleTopBar(
     circleText: String,
     title: String,
     subtitle: String,
-    hideSubtitle: Boolean = false,
+    showSubtitle: Boolean = false,
     isDropdownMenuVisible: Boolean = false,
     onSettingsClick: ((Boolean) -> Unit)? = null,
     menuItems: List<DropdownMenuItemData> = emptyList(),
@@ -213,9 +229,9 @@ fun CircleTopBar(
                 text = title,
             )
 
-            if (hideSubtitle) {
+            if (showSubtitle) {
                 Text(
-                    style = Typography.tiny,
+                    style = Typography.label,
                     color = AppTheme.colors.neutral90,
                     text = subtitle,
                 )
@@ -352,19 +368,18 @@ fun EndangeredHives(
 @Composable
 fun LastOverviews(
     sectionTitle: String? = null,
-    navigator: DestinationsNavigator,
+    lastOverviewsList: List<ListItemOverviewModel>? = null,
+    isLoading: Boolean,
+    navToOverview: (String) -> Unit,
 ) {
+    if (isLoading) LoadingDialog()
+
     if (sectionTitle != null) SectionTitle(sectionTitle)
 
-    Column(
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        OverviewButton(
-            title = "Ul 01",
-            info = "Stan rojowy",
-            hiveType = "21.07.2024",
-            onClick = { navigator.navigate(DashboardScreenDestination) },
+    lastOverviewsList?.let {
+        OverviewsLazyColumn(
+            overviews = it,
+            navToOverview = navToOverview,
         )
     }
 }
@@ -372,7 +387,7 @@ fun LastOverviews(
 @Composable
 fun OverviewButton(
     title: String,
-    info: String,
+    info: String? = null,
     hiveType: String? = null,
     date: String? = null,
     onClick: () -> Unit,
@@ -427,11 +442,13 @@ fun OverviewButton(
 
             VerticalSpacer(4.dp)
 
-            Text(
-                text = info,
-                style = Typography.small,
-                color = AppTheme.colors.primary50,
-            )
+            if (info != null) {
+                Text(
+                    text = info,
+                    style = Typography.small,
+                    color = AppTheme.colors.primary50,
+                )
+            }
         }
 
         Image(
@@ -447,3 +464,6 @@ data class ButtonTile(
     val icon: Int,
     val direction: Direction,
 )
+
+fun DestinationsNavigator.navToOverview(overviewId: String) = navigate(OverviewScreenDestination(overviewId))
+private fun DestinationsNavigator.navToBaseAuth() = navigate(BaseAuthScreenDestination)

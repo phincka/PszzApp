@@ -1,14 +1,18 @@
 <resources>
     <string name="app_name">pszzapp</string>
 
-    <!-- SignIn screen start -->
+    !-- SignIn screen start -->
     <string name="signIn_title">Logowanie</string>
+    <string name="signIn_form_name">Imię</string>
     <string name="signIn_form_login">E-mail</string>
     <string name="signIn_form_password">Hasło</string>
+    <string name="signIn_form_repeat_password">Powtórz hasło</string>
     <string name="signIn_login_button">Zaloguj się</string>
     <string name="signIn_register_button">Utwórz konto</string>
     <string name="signIn_reset_password_text">Nie pamiętasz hasła?</string>
     <string name="signIn_reset_password_button">Zresetuj hasło</string>
+    <string name="signUp_signIn_text">Masz już konto?</string>
+    <string name="signUp_signIn_button">Zaloguj się</string>
     <!-- SignIn screen end -->
 
     <!-- SignUp screen start -->
@@ -124,6 +128,10 @@
     <string name="overview_moods_2">Normalny</string>
     <string name="overview_moods_3">Agresywny</string>
 
+    <string name="yes">Tak</string>
+    <string name="no">Nie</string>
+
+
     <string name="overview_numbers_1">1</string>
     <string name="overview_numbers_2">2</string>
     <string name="overview_numbers_3">3</string>
@@ -189,4 +197,9 @@
     <string name="home_screen">Home</string>
     <string name="hive_screen">Hive</string>
     <!-- Remove modal end -->
+    <string name="concentration_2_1">2:1</string>
+    <string name="concentration_1_1">1:1</string>
+    <string name="concentration_3_2">3:2</string>
+
+
 </resources>

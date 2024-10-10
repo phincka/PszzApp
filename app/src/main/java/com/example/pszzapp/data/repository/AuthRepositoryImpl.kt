@@ -8,32 +8,48 @@ import com.example.pszzapp.data.util.AccountUserState
 import com.example.pszzapp.data.util.AuthState
 import com.example.pszzapp.domain.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import org.koin.core.annotation.Single
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 
 @Single
 class AuthRepositoryImpl(
+    private val firebaseFireStore: FirebaseFirestore,
     private val firebaseAuth: FirebaseAuth,
     private val context: Context
 ): AuthRepository {
-    override suspend fun getCurrentUser(): AccountUserState = try {
-        val user = firebaseAuth.currentUser
+    override suspend fun getCurrentUser(): AccountUserState =
+        suspendCoroutine { continuation ->
+            firebaseAuth.currentUser?.let { currentUser ->
+                firebaseFireStore
+                    .collection("users")
+                    .whereEqualTo("uid", currentUser.uid)
+                    .get()
+                    .addOnSuccessListener { querySnapshot ->
+                        for (document in querySnapshot.documents) {
+                            val listData = document.data
 
-        if (user != null) {
-            AccountUserState.SignedInState(
-                UserModel(
-                    userId = user.uid,
-                    email = user.email,
-                    isEmailVerified = user.isEmailVerified
-                )
-            )
-        } else {
-            AccountUserState.GuestState
+                            listData?.let { data ->
+                                val userModel = UserModel(
+                                    uid = document.id,
+                                    name = data["name"] as? String ?: "",
+                                    email = data["email"] as? String ?: "",
+                                    isModalAlternativeEnable = data["modalAlternativeEnable"] as? Boolean
+                                        ?: false,
+                                )
+                                continuation.resume(AccountUserState.SignedInState(userModel))
+                            }
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        exception.message?.let { AccountUserState.Error(it) }
+                            ?.let { continuation.resume(it) }
+                    }
+            } ?: continuation.resume(AccountUserState.GuestState)
         }
-    } catch (e: Exception) {
-        AccountUserState.Error("Failed: ${e.message}")
-    }
 
     override suspend fun firebaseEmailSignIn(
         email: String,
@@ -41,14 +57,14 @@ class AuthRepositoryImpl(
     ): AuthState {
         return try {
             firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            AuthState.Success
+            AuthState.Success(true)
         } catch (error: Exception) {
-            Log.d("LOG_APP", error.toString())
             AuthState.Error(error.toString())
         }
     }
 
     override suspend fun firebaseEmailSignUp(
+        name: String,
         email: String,
         password: String,
         repeatPassword: String
@@ -58,13 +74,23 @@ class AuthRepositoryImpl(
                 firebaseAuth.createUserWithEmailAndPassword(email, password).await()
                 firebaseEmailSignIn(email, password)
 
-                val currentUser = firebaseAuth.currentUser
-                if (currentUser != null) {
-                    currentUser.sendEmailVerification().await()
-                    AuthState.Success
-                } else {
-                    AuthState.Error(context.getString(R.string.auth_state_no_user))
-                }
+                firebaseAuth.currentUser?.let { currentUser ->
+                    val docRef = firebaseFireStore
+                        .collection("users")
+                        .document()
+
+                    val userModel = UserModel(
+                        uid = currentUser.uid,
+                        name = name,
+                        email = email,
+                        isModalAlternativeEnable = false,
+                    )
+
+                    docRef.set(userModel)
+
+                    AuthState.Success(true)
+                } ?:  AuthState.Error(context.getString(R.string.auth_state_passwords_not_equal))
+
             } catch (error: Exception) {
                 AuthState.Error(error.toString())
             }
@@ -88,9 +114,12 @@ class AuthRepositoryImpl(
                 currentUser.reload().await()
 
                 if (currentUser.isEmailVerified) {
-                    AuthState.Success
+                    AuthState.Success(true)
                 } else {
-                    AuthState.Error(context.getString(R.string.auth_state_verification_error))
+                    AuthState.Success(
+                        false,
+                        message = context.getString(R.string.auth_state_verification_error)
+                    )
                 }
             } catch (e: Exception) {
                 AuthState.Error("${context.getString(R.string.auth_state_update_error)} ${e.message}")
@@ -106,7 +135,10 @@ class AuthRepositoryImpl(
         return if (currentUser != null) {
             try {
                 currentUser.sendEmailVerification()
-                AuthState.Success
+                AuthState.Success(
+                    success = false,
+                    message = context.getString(R.string.auth_state_email_send)
+                )
             } catch (e: Exception) {
                 AuthState.Error("${context.getString(R.string.auth_state_email_not_send)} ${e.message}")
             }

@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.pszzapp.R
 import com.example.pszzapp.data.model.ApiaryModel
 import com.example.pszzapp.domain.repository.ApiaryRepository
+import com.example.pszzapp.presentation.apiary.RemoveApiaryState
 import com.example.pszzapp.presentation.apiary.create.CreateApiaryState
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
@@ -155,6 +156,44 @@ class ApiaryRepositoryImpl(
                 continuation.resume(CreateApiaryState.Redirect(id))
             } else {
                 continuation.resume(CreateApiaryState.Error(context.getString(R.string.hive_state_no_user)))
+            }
+        }
+
+    override suspend fun removeApiary(
+        apiaryId: String,
+    ): RemoveApiaryState =
+        suspendCancellableCoroutine { continuation ->
+            if (firebaseAuth.currentUser != null) {
+                firebaseAuth.currentUser?.let { currentUser ->
+                    firebaseFireStore
+                        .collection("apiaries")
+                        .document(apiaryId)
+                        .delete()
+                        .addOnSuccessListener {
+                            firebaseFireStore
+                                .collection("hives")
+                                .whereEqualTo("apiaryId", apiaryId)
+                                .get()
+                                .addOnSuccessListener { documents ->
+                                    for (document in documents) {
+                                        document.reference.delete()
+                                            .addOnFailureListener { e ->
+                                                continuation.resume(RemoveApiaryState.Error("Error deleting document: $e"))
+                                            }
+                                    }
+                                }
+                                .addOnFailureListener {
+                                    continuation.resume(RemoveApiaryState.Error("exception"))
+                                }
+
+                            continuation.resume(RemoveApiaryState.Success)
+                        }
+                        .addOnFailureListener {
+                            continuation.resume(RemoveApiaryState.Error("exception"))
+                        }
+                }
+            } else {
+                continuation.resume(RemoveApiaryState.Error("hive_state_no_user"))
             }
         }
 }

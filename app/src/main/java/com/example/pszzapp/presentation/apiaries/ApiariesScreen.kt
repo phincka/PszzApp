@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.pszzapp.R
 import com.example.pszzapp.data.util.DropdownMenuItemData
+import com.example.pszzapp.presentation.apiary.navToDashboard
 import com.example.pszzapp.presentation.auth.base.Button
 import com.example.pszzapp.presentation.auth.base.VerticalSpacer
 import com.example.pszzapp.presentation.components.ApiariesLazyColumn
@@ -122,8 +123,7 @@ fun ApiariesLayout(
                         title = "Nie masz jeszcze pasieki",
                         text = "Kliknij w przycisk i dodaj swoją pierwszą pasiekę",
                         buttonTitle = "Dodaj pasiekę",
-                        navigator = navigator,
-                        direction = CreateApiaryScreenDestination,
+                        navigate = { navigator.navToDashboard() },
                     )
                 }
             }
@@ -136,19 +136,21 @@ fun EmptyList(
     title: String,
     text: String,
     buttonTitle: String,
-    navigator: DestinationsNavigator,
-    direction: Route,
+    showIcon: Boolean = true,
+    navigate: () -> Unit,
 ) {
     Column(
         modifier = Modifier.padding(vertical = 64.dp, horizontal = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Image(
-            painter = painterResource(R.drawable.empty_list),
-            contentDescription = "arrow_right",
-            modifier = Modifier
-                .size(164.dp)
-        )
+        if (showIcon) {
+            Image(
+                painter = painterResource(R.drawable.empty_list),
+                contentDescription = "arrow_right",
+                modifier = Modifier
+                    .size(164.dp)
+            )
+        }
 
         VerticalSpacer(48.dp)
 
@@ -171,7 +173,7 @@ fun EmptyList(
 
         Button(
             text = buttonTitle,
-            onClick = { navigator.navigate(route = direction.route) },
+            onClick = navigate,
         )
     }
 }

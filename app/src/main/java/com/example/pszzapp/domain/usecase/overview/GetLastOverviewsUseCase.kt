@@ -6,10 +6,10 @@ import com.example.pszzapp.domain.repository.OverviewRepository
 import org.koin.core.annotation.Single
 
 @Single
-class GetOverviewsByHiveIdUseCase(
+class GetLastOverviewsUseCase(
     private val overviewRepository: OverviewRepository
 ) {
-    suspend operator fun invoke(id: String): List<ListItemOverviewModel> {
-        return overviewRepository.getOverviewsByHiveId(id)
+    suspend operator fun invoke(size: Long): List<ListItemOverviewModel> {
+        return overviewRepository.getLastOverviews(size)
     }
 }

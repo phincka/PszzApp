@@ -6,17 +6,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.pszzapp.data.model.ApiaryModel
 import com.example.pszzapp.data.model.HiveModel
 import com.example.pszzapp.domain.usecase.apiary.GetApiaryByIdUseCase
+import com.example.pszzapp.domain.usecase.apiary.RemoveApiaryUseCase
 import com.example.pszzapp.domain.usecase.hive.GetHivesByApiaryIdUseCase
-import com.example.pszzapp.domain.usecase.overview.GetOverviewsByHiveIdUseCase
-import com.example.pszzapp.presentation.hive.HiveState
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -27,10 +24,14 @@ import org.koin.android.annotation.KoinViewModel
 class ApiaryViewModel(
     id: String,
     private val getApiaryByIdUseCase: GetApiaryByIdUseCase,
-    private val getHivesByApiaryIdUseCase: GetHivesByApiaryIdUseCase
+    private val getHivesByApiaryIdUseCase: GetHivesByApiaryIdUseCase,
+    private val removeApiaryUseCase: RemoveApiaryUseCase,
 ) : ViewModel() {
     private val _apiaryState: MutableStateFlow<ApiaryState> = MutableStateFlow(ApiaryState.Loading)
     val apiaryState: StateFlow<ApiaryState> = _apiaryState
+
+    private val _removeApiaryState: MutableStateFlow<RemoveApiaryState> = MutableStateFlow(RemoveApiaryState.None)
+    val removeApiaryState: StateFlow<RemoveApiaryState> = _removeApiaryState
 
     init {
         getHivesByApiaryId(id)
@@ -57,7 +58,17 @@ class ApiaryViewModel(
         }
     }
 
-
+    fun removeApiary(
+        apiaryId: String,
+    ) {
+        viewModelScope.launch {
+            try {
+                _removeApiaryState.value = removeApiaryUseCase(apiaryId = apiaryId)
+            } catch (e: Exception) {
+                _removeApiaryState.value = RemoveApiaryState.Error("${e.message}")
+            }
+        }
+    }
 
     private val _searchText = MutableStateFlow("")
     val searchText = _searchText.asStateFlow()
@@ -74,7 +85,6 @@ class ApiaryViewModel(
     )
 
 
-    @OptIn(FlowPreview::class)
     val persons = searchText
         .onEach { _isSearching.update { true } }
         .combine(_apiaryState) { text, apiaryState ->
@@ -112,4 +122,10 @@ sealed class ApiaryState {
         val hives: List<HiveModel>
     ) : ApiaryState()
     data class Error(val message: String) : ApiaryState()
+}
+
+sealed class RemoveApiaryState {
+    data object None : RemoveApiaryState()
+    data object Success : RemoveApiaryState()
+    data class Error(val message: String) : RemoveApiaryState()
 }

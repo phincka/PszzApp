@@ -66,7 +66,7 @@ fun BaseAuthScreen(
             ) {
                 Text(
                     text = "Get Cooking",
-                    style = Typography.heading,
+                    style = Typography.h2,
                     fontWeight = FontWeight.SemiBold,
                     color = AppTheme.colors.white,
                     textAlign = TextAlign.Center,
@@ -76,7 +76,7 @@ fun BaseAuthScreen(
 
                 Text(
                     text = "Simple way to find Tasty Recipe",
-                    style = Typography.p,
+                    style = Typography.h3,
                     color = AppTheme.colors.white,
                     textAlign = TextAlign.Center,
                 )

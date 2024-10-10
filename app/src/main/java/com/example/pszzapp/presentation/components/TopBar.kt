@@ -37,6 +37,7 @@ fun TopBar(
     title: String,
     subtitle: String? = null,
     warningInfo: String? = null,
+    columnInfo: Boolean = false,
     goodInfo: String? = null,
     onSettingsClick: (() -> Unit)? = null,
     onNotification: (() -> Unit)? = null,
@@ -81,6 +82,34 @@ fun TopBar(
                     )
 
                     Spacer(modifier = Modifier.width(12.dp))
+                    if (!columnInfo) {
+                        Column {
+                            warningInfo?.let {
+                                Text(
+                                    buildAnnotatedString {
+                                        withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                                            append("UWAGA! ")
+                                        }
+                                        append(it)
+                                    },
+                                    style = Typography.label,
+                                    color = AppTheme.colors.primary50,
+                                )
+                            }
+
+                            goodInfo?.let {
+                                Text(
+                                    text = it,
+                                    style = Typography.label,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = AppTheme.colors.green100,
+                                )
+                            }
+                        }
+                    }
+                }
+
+                if (columnInfo) {
                     Column {
                         warningInfo?.let {
                             Text(
@@ -105,6 +134,7 @@ fun TopBar(
                         }
                     }
                 }
+
                 subtitle?.let {
                     Text(
                         text = it,

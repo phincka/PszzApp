@@ -107,8 +107,13 @@ class HiveRepositoryImpl(
     override suspend fun createHive(hiveModel: HiveModel): CreateHiveState =
         suspendCancellableCoroutine { continuation ->
             if (firebaseAuth.currentUser != null) {
+                val docRef = firebaseFireStore
+                    .collection("hives")
+                    .document()
+                val hiveId = docRef.id
+
                 val hive = HiveModel(
-                    id = "",
+                    id = hiveId,
                     uid = firebaseAuth.currentUser!!.uid,
                     apiaryId = hiveModel.apiaryId,
                     name = hiveModel.name,
@@ -123,12 +128,7 @@ class HiveRepositoryImpl(
                     queenNote = hiveModel.queenNote
                 )
 
-                val docRef = firebaseFireStore
-                    .collection("hives")
-                    .document()
-                val hiveId = docRef.id
                 docRef.set(hive)
-
                 continuation.resume(CreateHiveState.Redirect(hiveId))
             } else {
                 continuation.resume(CreateHiveState.Error(context.getString(R.string.hive_state_no_user)))

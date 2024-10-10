@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -36,10 +38,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavType
@@ -55,6 +60,7 @@ import com.example.pszzapp.presentation.components.formattedDate
 import com.example.pszzapp.presentation.dashboard.BackgroundShapes
 import com.example.pszzapp.presentation.destinations.ApiaryScreenDestination
 import com.example.pszzapp.presentation.destinations.CreateApiaryLocationScreenDestination
+import com.example.pszzapp.presentation.hive.create.OptionsState
 import com.example.pszzapp.presentation.hive.create.StepsBelt
 import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.example.pszzapp.ui.theme.AppTheme
@@ -77,13 +83,13 @@ fun CreateApiaryScreen(
     navigator: DestinationsNavigator,
     viewModel: CreateApiaryViewModel = koinViewModel()
 ) {
-    val createApiaryState = viewModel.createApiaryState.collectAsState().value
+    val createApiaryState by viewModel.createApiaryState.collectAsState()
 
-    if (createApiaryState is CreateApiaryState.Redirect) navigator.navigate(
-        ApiaryScreenDestination(
-            id = createApiaryState.apiaryId
+    if (createApiaryState is CreateApiaryState.Redirect) {
+        navigator.navigate(
+            ApiaryScreenDestination(id = (createApiaryState as CreateApiaryState.Redirect).apiaryId)
         )
-    )
+    }
 
     CreateApiaryLayout(
         navController = navController,
@@ -111,6 +117,18 @@ private fun CreateApiaryLayout(
         )
     }
 
+    var apiaryData by remember {
+        mutableStateOf(
+            ApiaryModel(
+                id = "",
+                uid = "",
+                name = "",
+                type = 0,
+                location = "",
+            )
+        )
+    }
+
     BoxWithConstraints(
         modifier = Modifier
             .bottomBarPadding(navController = navController)
@@ -121,87 +139,33 @@ private fun CreateApiaryLayout(
         Column(
             modifier = Modifier
                 .heightIn(min = maxHeight)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
         ) {
             TopBar(
                 backNavigation = { resultNavigator.navigateBack() },
                 title = "Dodaj pasiekę",
             )
 
-            StepsBelt(
-                maxSteps = 2,
-                currentStep = 1
+            StepsBelt(maxSteps = 2, currentStep = 1)
+
+            ApiaryForm(
+                apiaryData = apiaryData,
+                onApiaryDataChange = { apiaryData = it },
+                typeOptions = typeOptions,
+                onTypeOptionsChange = { typeOptions = it }
             )
-
-
-            var apiaryData: ApiaryModel by remember {
-                mutableStateOf(
-                    ApiaryModel(
-                        "",
-                        "",
-                        "",
-                        0,
-                        "",
-                    )
-                )
-            }
-
-            Column {
-                Column(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-
-                        .graphicsLayer {
-                            shadowElevation = 4.dp.toPx()
-                            shape = RoundedCornerShape(8.dp)
-                            clip = true
-                        }
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(AppTheme.colors.white)
-                        .padding(horizontal = 8.dp, vertical = 16.dp),
-
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    InputText(
-                        label = stringResource(R.string.apiary_form_name_label),
-                        placeholder = stringResource(R.string.apiary_form_name_label),
-                        value = apiaryData.name,
-                        onValueChange = { newValue ->
-                            apiaryData = apiaryData.copy(name = newValue)
-                        },
-                    )
-
-                    InputSelect(
-                        value = if (typeOptions.changed) stringResource(
-                            CreateApiaryConstants.type[typeOptions.selectedOption]
-                        ) else "",
-                        label = stringResource(R.string.apiary_form_type_title),
-                        showPlaceholder = !typeOptions.changed,
-                        selectedOption = typeOptions.selectedOption,
-                        setExpanded = { typeOptions = typeOptions.copy(expanded = it) },
-                        options = CreateApiaryConstants.type,
-                    )
-                }
-            }
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Column(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 32.dp)
-            ) {
-                if (createApiaryState is CreateApiaryState.Error) TextError(createApiaryState.message)
-
-                Button(
-                    text = "Dalej",
-                    showIcon = true,
-                    onClick = {
-                        apiaryData = apiaryData.copy(type = typeOptions.selectedOption)
-                        navigator.navigate(
-                            CreateApiaryLocationScreenDestination(apiaryData)
-                        )
-                    },
-                )
-            }
+            SaveApiaryButton(
+                createApiaryState = createApiaryState,
+                onSaveClick = {
+                    apiaryData = apiaryData.copy(type = typeOptions.selectedOption)
+                    navigator.navigate(
+                        CreateApiaryLocationScreenDestination(apiaryData)
+                    )
+                }
+            )
         }
 
         Modal(
@@ -214,6 +178,67 @@ private fun CreateApiaryLayout(
             onDismissRequest = {
                 typeOptions = typeOptions.copy(expanded = false)
             },
+        )
+    }
+}
+
+@Composable
+private fun ApiaryForm(
+    apiaryData: ApiaryModel,
+    onApiaryDataChange: (ApiaryModel) -> Unit,
+    typeOptions: ApiaryType,
+    onTypeOptionsChange: (ApiaryType) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .graphicsLayer {
+                shadowElevation = 4.dp.toPx()
+                shape = RoundedCornerShape(8.dp)
+                clip = true
+            }
+            .clip(RoundedCornerShape(8.dp))
+            .background(AppTheme.colors.white)
+            .padding(horizontal = 8.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        InputText(
+            label = stringResource(R.string.apiary_form_name_label),
+            placeholder = stringResource(R.string.apiary_form_name_label),
+            value = apiaryData.name,
+            onValueChange = { newValue ->
+                onApiaryDataChange(apiaryData.copy(name = newValue))
+            },
+        )
+
+        InputSelect(
+            value = if (typeOptions.changed) stringResource(typeOptions.options[typeOptions.selectedOption]) else "",
+            label = stringResource(R.string.apiary_form_type_title),
+            showPlaceholder = !typeOptions.changed,
+            selectedOption = typeOptions.selectedOption,
+            setExpanded = { onTypeOptionsChange(typeOptions.copy(expanded = it)) },
+            options = typeOptions.options,
+        )
+    }
+}
+
+@Composable
+private fun SaveApiaryButton(
+    createApiaryState: CreateApiaryState,
+    onSaveClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 32.dp)
+    ) {
+        if (createApiaryState is CreateApiaryState.Error) {
+            TextError(createApiaryState.message)
+        }
+
+        Button(
+            text = "Dalej",
+            showIcon = true,
+            onClick = onSaveClick,
+            isLoading = createApiaryState is CreateApiaryState.Loading
         )
     }
 }
@@ -268,6 +293,63 @@ fun InputText(
             ),
             keyboardOptions = KeyboardOptions.Default.copy(
                 imeAction = ImeAction.Next
+            )
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun InputNumber(
+    label: String? = null,
+    value: String,
+    onValueChange: (String) -> Unit,
+    minLines: Int = 1,
+    maxLines: Int = 1,
+) {
+    Column {
+        label?.let {
+            Text(
+                text = label,
+                style = Typography.label,
+                fontWeight = FontWeight.SemiBold,
+                color = AppTheme.colors.neutral90,
+            )
+        }
+
+        VerticalSpacer(6.dp)
+
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = if (value == "0") "" else value,
+            placeholder = {
+                Text(
+                    text = "0",
+                    style = Typography.label,
+                )
+            },
+            onValueChange = {
+                onValueChange(it.replace(",", "."))
+            },
+            shape = RoundedCornerShape(10.dp),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = AppTheme.colors.primary40,
+                unfocusedBorderColor = AppTheme.colors.neutral30,
+                focusedPlaceholderColor = AppTheme.colors.neutral30,
+                unfocusedPlaceholderColor = AppTheme.colors.neutral30,
+            ),
+            textStyle = Typography.label.copy(
+                fontWeight = FontWeight.Medium,
+                color = AppTheme.colors.neutral90,
+            ),
+            maxLines = maxLines,
+            minLines = minLines,
+            keyboardActions = KeyboardActions(
+                onDone = {}
+            ),
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Next,
+                keyboardType = KeyboardType.Number,
             )
         )
     }
@@ -331,6 +413,65 @@ fun InputSelect(
             ),
             readOnly = true,
         )
+    }
+}
+
+@Composable
+fun TabsSelect(
+    label: String? = null,
+    selectedOption: Int,
+    options: List<Int>,
+    onOptionSelected: (Int) -> Unit,
+) {
+    val source = remember { MutableInteractionSource() }
+
+    Column {
+        label?.let {
+            Text(
+                text = label,
+                style = Typography.label,
+                fontWeight = FontWeight.SemiBold,
+                color = AppTheme.colors.neutral90,
+            )
+        }
+
+        VerticalSpacer(6.dp)
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            options.forEachIndexed { index, option ->
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(10.dp))
+                        .height(34.dp)
+                        .clickable(onClick = {
+                            onOptionSelected(index)
+                        })
+                        .then(
+                            if (index == selectedOption) {
+                                Modifier
+                                    .background(AppTheme.colors.primary50)
+                            } else {
+                                Modifier
+                                    .background(AppTheme.colors.primary10)
+                            }
+                        ),
+                ) {
+                    Text(
+                        text = stringResource(option),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = Typography.small,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (index == selectedOption) AppTheme.colors.primary10 else AppTheme.colors.primary30,
+                    )
+                }
+            }
+        }
     }
 }
 
