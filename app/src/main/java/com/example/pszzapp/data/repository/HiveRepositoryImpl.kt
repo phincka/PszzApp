@@ -1,6 +1,7 @@
 package com.example.pszzapp.data.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import com.example.pszzapp.R
 import com.example.pszzapp.data.model.ApiaryModel
@@ -11,6 +12,7 @@ import com.example.pszzapp.presentation.apiary.create.CreateApiaryState
 import com.example.pszzapp.presentation.hive.create.CreateHiveState
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
@@ -34,8 +36,11 @@ class HiveRepositoryImpl(
                 firebaseFireStore
                     .collection("hives")
                     .whereEqualTo("apiaryId", id)
+                    .orderBy("hiveCreatedDate", Query.Direction.DESCENDING)
                     .get()
                     .addOnSuccessListener { querySnapshot ->
+                        Log.d("LOG_H", querySnapshot.documents.toString())
+
                         for (document in querySnapshot.documents) {
                             val apiaryData = document.data
 

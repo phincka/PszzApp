@@ -6,21 +6,29 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.pszzapp.R
+import com.example.pszzapp.data.model.UserModel
 import com.example.pszzapp.data.util.AccountUserState
+import com.example.pszzapp.presentation.auth.base.VerticalSpacer
 import com.example.pszzapp.presentation.components.FilledButton
 import com.example.pszzapp.presentation.components.LoadingDialog
 import com.example.pszzapp.presentation.components.TextError
 import com.example.pszzapp.presentation.components.TopBar
 import com.example.pszzapp.presentation.dashboard.AccountViewModel
+import com.example.pszzapp.presentation.dashboard.BackgroundShapes
+import com.example.pszzapp.presentation.dashboard.SectionTitle
 import com.example.pszzapp.presentation.destinations.BaseAuthScreenDestination
 import com.example.pszzapp.presentation.main.bottomBarPadding
+import com.example.pszzapp.ui.theme.AppTheme
+import com.example.pszzapp.ui.theme.Typography
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -37,55 +45,80 @@ fun AccountScreen(
 ) {
     val accountUserState = viewModel.accountUserState.collectAsState().value
 
-    AccountLayout(
-        navigator = navigator,
-        resultNavigator = resultNavigator,
-        navController = navController,
-        signOut = { viewModel.signOut() },
-        accountUserState = accountUserState
-    )
-}
-
-@Composable
-fun AccountLayout(
-    navigator: DestinationsNavigator,
-    resultNavigator: ResultBackNavigator<Boolean>,
-    navController: NavController,
-    signOut: () -> Unit,
-    accountUserState: AccountUserState,
-) {
     Box(
         modifier = Modifier
             .bottomBarPadding(navController = navController)
             .fillMaxSize()
     ) {
-        Column {
-            TopBar(
-                backNavigation = { resultNavigator.navigateBack() },
-                title = "Konto",
+        BackgroundShapes()
+
+
+        when (accountUserState) {
+            is AccountUserState.Loading -> LoadingDialog()
+
+            is AccountUserState.SignedInState -> {
+                AccountLayout(
+                    resultNavigator = resultNavigator,
+                    signOut = { viewModel.signOut() },
+                    user = accountUserState.user
+                )
+            }
+
+            is AccountUserState.GuestState -> navigator.navigate(BaseAuthScreenDestination)
+
+            is AccountUserState.Error -> TextError(accountUserState.message)
+
+            is AccountUserState.None -> Unit
+        }
+    }
+}
+
+@Composable
+fun AccountLayout(
+    resultNavigator: ResultBackNavigator<Boolean>,
+    signOut: () -> Unit,
+    user: UserModel,
+) {
+    Column {
+        TopBar(
+            backNavigation = { resultNavigator.navigateBack() },
+            title = "Konto",
+        )
+
+        Column(
+            modifier = Modifier.padding(12.dp)
+        ) {
+            if (user.isBetaTester) {
+                Text(
+                    text = "Beta tester",
+                    style = Typography.p,
+                    fontWeight = FontWeight.SemiBold,
+                    color = AppTheme.colors.neutral90,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+            }
+            Text(
+                text = "Rodzaj konta: ${user.role}",
+                style = Typography.p,
+                fontWeight = FontWeight.SemiBold,
+                color = AppTheme.colors.neutral90,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+            Text(
+                text = "Typ konta: ${if (user.isPremium) "PREMIUM" else "STANDARD"}",
+                style = Typography.p,
+                fontWeight = FontWeight.SemiBold,
+                color = AppTheme.colors.neutral90,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
-            Column(
-                modifier = Modifier.padding(12.dp)
-            ) {
-                when (accountUserState) {
-                    is AccountUserState.Loading -> LoadingDialog()
+            VerticalSpacer(64.dp)
 
-                    is AccountUserState.SignedInState -> {
-                        FilledButton(
-                            text = "Wyloguj się",
-                            onClick = { signOut() },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-
-                    is AccountUserState.GuestState -> navigator.navigate(BaseAuthScreenDestination)
-
-                    is AccountUserState.Error -> TextError(accountUserState.message)
-
-                    is AccountUserState.None -> Unit
-                }
-            }
+            FilledButton(
+                text = "Wyloguj się",
+                onClick = { signOut() },
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }

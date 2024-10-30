@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.example.pszzapp.R
 import com.example.pszzapp.data.model.UserModel
+import com.example.pszzapp.data.model.UserRole
 import com.example.pszzapp.data.util.AccountUserState
 import com.example.pszzapp.data.util.AuthState
 import com.example.pszzapp.domain.repository.AuthRepository
@@ -33,13 +34,21 @@ class AuthRepositoryImpl(
                             val listData = document.data
 
                             listData?.let { data ->
+                                val roleString = data["role"] as? String ?: "USER"
+                                val role = runCatching {
+                                    UserRole.valueOf(roleString)
+                                }.getOrDefault(UserRole.USER)
+
                                 val userModel = UserModel(
                                     uid = document.id,
                                     name = data["name"] as? String ?: "",
                                     email = data["email"] as? String ?: "",
-                                    isModalAlternativeEnable = data["modalAlternativeEnable"] as? Boolean
-                                        ?: false,
+                                    isPremium = data["isPremium"] as? Boolean ?: false,
+                                    isBetaTester = data["isBetaTester"] as? Boolean ?: false,
+                                    role = role,
+                                    isModalAlternativeEnable = data["modalAlternativeEnable"] as? Boolean ?: false
                                 )
+
                                 continuation.resume(AccountUserState.SignedInState(userModel))
                             }
                         }

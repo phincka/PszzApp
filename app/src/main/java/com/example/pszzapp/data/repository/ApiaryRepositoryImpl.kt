@@ -39,7 +39,7 @@ class ApiaryRepositoryImpl(
                         Filter.equalTo("uid", currentUser.uid),
                     )
                 )
-                .orderBy("timestamp", Query.Direction.ASCENDING)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener { querySnapshot ->
                     for (document in querySnapshot.documents) {

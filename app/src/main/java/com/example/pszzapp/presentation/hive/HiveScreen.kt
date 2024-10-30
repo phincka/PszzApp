@@ -56,6 +56,7 @@ import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.example.pszzapp.ui.theme.AppTheme
 import com.example.pszzapp.ui.theme.Typography
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import org.koin.androidx.compose.koinViewModel
@@ -63,6 +64,8 @@ import org.koin.core.parameter.parametersOf
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Destination
+//@RootNavGraph(start = true)
+
 @Composable
 fun HiveScreen(
     id: String = "M9I1XqC0P2xIqIFpLASb",
@@ -219,7 +222,6 @@ fun HiveLayout(
                 isModalActive = isModalActive,
                 setModal = setModal,
                 onSettingsClick = { isDropdownMenuVisible = true },
-                onNotification = {},
             )
 
             PrimaryTabRow(

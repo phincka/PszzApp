@@ -1,6 +1,7 @@
 package com.example.pszzapp.presentation.apiary
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -23,8 +25,6 @@ import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -38,12 +38,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.pszzapp.R
@@ -111,6 +109,7 @@ fun ApiaryScreen(
         Column {
             when (apiaryState) {
                 is ApiaryState.Success -> {
+                    Log.d("LOG_H", apiaryState.toString())
                     ApiaryLayout(
                         isDropdownMenuVisible = isDropdownMenuVisible,
                         setDropdownMenuVisible = { isDropdownMenuVisible = it },
@@ -165,12 +164,6 @@ fun ApiaryLayout(
     navToEditApiary: (ApiaryModel) -> Unit,
     navToCreateHive: (String) -> Unit,
 ) {
-    var titlesState by remember { mutableIntStateOf(0) }
-    val titles = listOf(
-        "Ule",
-        "Zbiory"
-    )
-
     val menuItems = listOf(
         DropdownMenuItemData(
             icon = Icons.Outlined.Edit,
@@ -216,138 +209,95 @@ fun ApiaryLayout(
     )
 
     if (hives.isNotEmpty()) {
-        PrimaryTabRow(
-            selectedTabIndex = titlesState,
-            indicator = {},
-            divider = {},
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-            containerColor = Color.Transparent,
+        Row(
+            modifier = Modifier
+                .padding(
+                    horizontal = 16.dp,
+                    vertical = 8.dp
+                ),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            titles.forEachIndexed { index, title ->
-                Tab(
-                    selected = titlesState == index,
-                    onClick = { titlesState = index },
-                    text = {
-                        Text(
-                            text = title,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = Typography.small,
-                            fontWeight = FontWeight.SemiBold,
-                            color = if (titlesState == index) AppTheme.colors.white else AppTheme.colors.primary30,
-                        )
-                    },
-                    modifier = if (titlesState == index) {
-                        Modifier
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(AppTheme.colors.primary50)
-                            .height(34.dp)
-                    } else {
-                        Modifier
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(Color.Transparent)
-                            .height(34.dp)
-                    }
+            OutlinedTextField(
+                modifier = Modifier
+                    .height(60.dp)
+                    .background(
+                        color = AppTheme.colors.white,
+                        shape = RoundedCornerShape(10.dp),
+                    ),
+                value = searchText,
+                onValueChange = onSearchTextChange,
+                placeholder = {
+                    Text(
+                        text = "Nazwa ula",
+                        style = Typography.label,
+                    )
+                },
+                shape = RoundedCornerShape(10.dp),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = AppTheme.colors.white,
+                    unfocusedBorderColor = AppTheme.colors.white,
+                    focusedPlaceholderColor = AppTheme.colors.neutral30,
+                    unfocusedPlaceholderColor = AppTheme.colors.neutral30,
+                ),
+                textStyle = Typography.label.copy(
+                    fontWeight = FontWeight.Medium,
+                    color = AppTheme.colors.neutral90,
+                ),
+                maxLines = 1,
+                keyboardActions = KeyboardActions(
+                    onDone = {}
+                ),
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Next
+                ),
+                leadingIcon = {
+                    Image(
+                        painter = painterResource(R.drawable.search_black),
+                        contentDescription = "arrow_right",
+                        modifier = Modifier
+                            .size(16.dp)
+                    )
+                },
+                trailingIcon = {
+                    Image(
+                        painter = painterResource(R.drawable.ramove),
+                        contentDescription = "arrow_right",
+                        modifier = Modifier
+                            .size(12.dp)
+                            .clickable(onClick = {
+                                onSearchTextChange("")
+                            })
+                    )
+                }
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(AppTheme.colors.primary50)
+                    .clickable(
+                        onClick = navToQrScannerScreen,
+                    )
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.camera_white),
+                    contentDescription = "arrow_right",
+                    modifier = Modifier
+                        .size(24.dp)
                 )
             }
         }
 
-        when (titlesState) {
-            0 -> {
-                Row(
-                    modifier = Modifier
-                        .padding(
-                            horizontal = 16.dp,
-                            vertical = 8.dp
-                        ),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    OutlinedTextField(
-                        modifier = Modifier.background(AppTheme.colors.white),
-                        value = searchText,
-                        onValueChange = onSearchTextChange,
-                        placeholder = {
-                            Text(
-                                text = stringResource(R.string.apiary_form_name_label),
-                                style = Typography.label,
-                            )
-                        },
-                        shape = RoundedCornerShape(10.dp),
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            focusedBorderColor = AppTheme.colors.white,
-                            unfocusedBorderColor = AppTheme.colors.white,
-                            focusedPlaceholderColor = AppTheme.colors.neutral30,
-                            unfocusedPlaceholderColor = AppTheme.colors.neutral30,
-                        ),
-                        textStyle = Typography.label.copy(
-                            fontWeight = FontWeight.Medium,
-                            color = AppTheme.colors.neutral90,
-                        ),
-                        maxLines = 1,
-                        keyboardActions = KeyboardActions(
-                            onDone = {}
-                        ),
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Next
-                        ),
-                        leadingIcon = {
-                            Image(
-                                painter = painterResource(R.drawable.search_black),
-                                contentDescription = "arrow_right",
-                                modifier = Modifier
-                                    .size(12.dp)
-                            )
-                        },
-                        trailingIcon = {
-                            Image(
-                                painter = painterResource(R.drawable.ramove),
-                                contentDescription = "arrow_right",
-                                modifier = Modifier
-                                    .size(12.dp)
-                                    .clickable(onClick = {
-                                        onSearchTextChange("")
-                                    })
-                            )
-                        }
-                    )
-
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .size(60.dp)
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(AppTheme.colors.primary50)
-                            .clickable(
-                                onClick = navToQrScannerScreen,
-                            )
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.camera_white),
-                            contentDescription = "arrow_right",
-                            modifier = Modifier
-                                .size(24.dp)
-                        )
-                    }
-                }
-                if (isSearching) {
-                    LoadingDialog()
-                } else {
-                    HivesLazyColumn(persons, navToHive)
-                }
-            }
-
-            1 -> {
-                EmptyList(
-                    title = "Widok w trakcie budowy",
-                    text = "Kliknij w przycisk i wróć do ekranu głównego.",
-                    buttonTitle = "Dodaj pasiekę",
-                    navigate = navToDashboard,
-                )
-            }
+        if (isSearching) {
+            LoadingDialog()
+        } else {
+            HivesLazyColumn(persons, navToHive)
         }
     } else {
         EmptyList(
