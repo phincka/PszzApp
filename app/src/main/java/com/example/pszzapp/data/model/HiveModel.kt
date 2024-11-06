@@ -1,6 +1,7 @@
 package com.example.pszzapp.data.model
 
 import android.os.Parcelable
+import com.example.pszzapp.data.model.ApiaryModel
 import kotlinx.parcelize.Parcelize
 import java.time.LocalDate
 
@@ -16,10 +17,14 @@ data class HiveModel(
     val line: String,
     val state: Int,
     val queenYear: Int,
-    val queenAddedDate: LocalDate,
-    val hiveCreatedDate: LocalDate,
+    val queenAddedDate: LocalDate? = null,
+    val hiveCreatedDate: LocalDate? = null,
     val queenNote: String,
 ) : Parcelable {
+    constructor() : this(
+        "", "", "", "", 0, 0, 0, "", 0, 0, null, null, "",
+    )
+
     fun doesMatchSearchQuery(query: String): Boolean {
         val matchingCombinations = listOf(
             name,

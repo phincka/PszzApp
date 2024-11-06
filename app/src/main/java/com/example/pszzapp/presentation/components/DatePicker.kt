@@ -5,17 +5,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.pszzapp.ui.theme.AppTheme
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.MaterialDialogState
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.temporal.TemporalAccessor
 
 @Composable
 fun DatePicker(
-    pickedDate: TemporalAccessor,
+    pickedDate: LocalDate?,
     setPickedDate: (LocalDate) -> Unit,
     dateDialogState: MaterialDialogState
 ) {

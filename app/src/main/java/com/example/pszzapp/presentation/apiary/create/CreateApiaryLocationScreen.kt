@@ -1,5 +1,6 @@
 package com.example.pszzapp.presentation.apiary.create
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -68,6 +69,7 @@ fun CreateApiaryLocationScreen(
     )
 }
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 private fun CreateApiaryLocationLayout(
     resultNavigator: ResultBackNavigator<Boolean>,

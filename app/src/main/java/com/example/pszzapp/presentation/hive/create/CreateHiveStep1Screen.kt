@@ -1,6 +1,7 @@
 package com.example.pszzapp.presentation.hive.create
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -8,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -17,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.pszzapp.R
+import com.example.pszzapp.data.model.ApiaryModel
 import com.example.pszzapp.data.model.HiveModel
 import com.example.pszzapp.presentation.apiary.create.InputDate
 import com.example.pszzapp.presentation.apiary.create.InputSelect
@@ -29,7 +32,6 @@ import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.example.pszzapp.ui.theme.AppTheme
 import com.example.pszzapp.ui.theme.Typography
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
@@ -45,54 +47,46 @@ fun CreateHiveStep1Screen(
     navController: NavController,
     navigator: DestinationsNavigator,
     viewModel: CreateHiveViewModel = koinViewModel(),
+    hiveModel: HiveModel? = null,
 ) {
     val createHiveState by viewModel.createHiveState.collectAsState()
 
     CreateHiveLayout(
         navController = navController,
         resultNavigator = resultNavigator,
-        navigator = navigator,
         createHiveState = createHiveState,
         apiaryId = apiaryId,
         onHiveCreated = { hiveData ->
-//            viewModel.updateHiveData(hiveData)
-            navigator.navigate(CreateHiveStep2ScreenDestination(hiveData))
-        }
+            navigator.navigate(CreateHiveStep2ScreenDestination(
+                hiveData = hiveData,
+                isEditing = hiveModel != null,
+            ))
+        },
+        hiveModel = hiveModel,
     )
 }
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 private fun CreateHiveLayout(
+    apiaryId: String,
     resultNavigator: ResultBackNavigator<Boolean>,
     navController: NavController,
-    navigator: DestinationsNavigator,
     createHiveState: CreateHiveState,
-    apiaryId: String,
-    onHiveCreated: (HiveModel) -> Unit
+    onHiveCreated: (HiveModel) -> Unit,
+    hiveModel: HiveModel? = null,
 ) {
     val hiveCreatedDateState = rememberMaterialDialogState()
 
     var familyTypeOptions by rememberOptionsState(CreateHiveConstants.familyType)
     var hiveTypeOptions by rememberOptionsState(CreateHiveConstants.hiveType)
 
-    var hiveData by remember {
-        mutableStateOf(
-            HiveModel(
-                id = "",
-                uid = "",
-                apiaryId = apiaryId,
-                name = "",
-                familyType = 0,
-                hiveType = 0,
-                breed = 0,
-                line = "",
-                state = 0,
-                queenYear = 0,
-                queenAddedDate = LocalDate.now(),
-                hiveCreatedDate = LocalDate.now(),
-                queenNote = ""
-            )
-        )
+    var hiveData by remember { mutableStateOf(HiveModel()) }
+
+    LaunchedEffect(hiveModel) {
+        hiveModel?.let {
+            hiveData = hiveModel
+        }
     }
 
     BoxWithConstraints(
@@ -138,6 +132,7 @@ private fun CreateHiveLayout(
                     showIcon = true,
                     onClick = {
                         hiveData = hiveData.copy(
+                            apiaryId = apiaryId,
                             familyType = familyTypeOptions.selectedOption,
                             hiveType = hiveTypeOptions.selectedOption
                         )
@@ -213,11 +208,13 @@ private fun CreateHiveForm(
             options = hiveTypeOptions.options
         )
 
-        InputDate(
-            value = hiveData.hiveCreatedDate.toFormattedDate(),
-            label = stringResource(R.string.created_date),
-            setExpanded = onDateClick
-        )
+        hiveData.hiveCreatedDate?.let {
+            InputDate(
+                value = it.toFormattedDate(),
+                label = stringResource(R.string.created_date),
+                setExpanded = onDateClick
+            )
+        }
     }
 }
 
@@ -260,7 +257,13 @@ fun OptionsModal(
         options = optionsState.options,
         isModalActive = optionsState.expanded,
         onConfirmation = { selectedOption ->
-            onOptionSelected(optionsState.copy(expanded = false, selectedOption = selectedOption, changed = true))
+            onOptionSelected(
+                optionsState.copy(
+                    expanded = false,
+                    selectedOption = selectedOption,
+                    changed = true
+                )
+            )
         },
         onDismissRequest = {
             onOptionSelected(optionsState.copy(expanded = false))

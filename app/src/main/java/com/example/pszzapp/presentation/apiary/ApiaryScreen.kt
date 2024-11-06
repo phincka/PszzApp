@@ -109,7 +109,6 @@ fun ApiaryScreen(
         Column {
             when (apiaryState) {
                 is ApiaryState.Success -> {
-                    Log.d("LOG_H", apiaryState.toString())
                     ApiaryLayout(
                         isDropdownMenuVisible = isDropdownMenuVisible,
                         setDropdownMenuVisible = { isDropdownMenuVisible = it },
@@ -327,7 +326,7 @@ private fun DestinationsNavigator.navToEditApiary(apiaryModel: ApiaryModel) =
     navigate(CreateApiaryScreenDestination(apiaryModel))
 
 private fun DestinationsNavigator.navToQrScannerScreen() = navigate(QrScannerScreenDestination)
-private fun DestinationsNavigator.navToApiariesScreen() = navigate(ApiariesScreenDestination)
+fun DestinationsNavigator.navToApiariesScreen() = navigate(ApiariesScreenDestination)
 private fun DestinationsNavigator.navToHiveScreen(hiveId: String) =
     navigate(HiveScreenDestination(hiveId))
 

@@ -39,14 +39,12 @@ fun TopBar(
     warningInfo: String? = null,
     columnInfo: Boolean = false,
     goodInfo: String? = null,
-    onSettingsClick: (() -> Unit)? = null,
+    onSettingsClick: ((Boolean) -> Unit)? = null,
     onNotification: (() -> Unit)? = null,
     backNavigation: (() -> Unit)? = null,
     menuItems: List<DropdownMenuItemData> = emptyList(),
-    isModalActive: Boolean = false,
-    setModal: (Boolean) -> Unit = {},
+    isDropdownMenuVisible: Boolean = false,
 ) {
-    var isDropdownMenuVisible by remember { mutableStateOf(false) }
 
     Row(
         modifier = Modifier
@@ -155,7 +153,7 @@ fun TopBar(
                     contentDescription = "arrow_right",
                     modifier = Modifier
                         .size(24.dp)
-                        .clickable(onClick = it),
+                        .clickable(onClick = { onSettingsClick(true) }),
                 )
             }
 
@@ -171,9 +169,11 @@ fun TopBar(
         }
     }
 
-    Dropdown(
-        isDropdownMenuVisible = isDropdownMenuVisible,
-        setDropdownMenuVisible = { isDropdownMenuVisible = it },
-        menuItems = menuItems
-    )
+    onSettingsClick?.let { onClick ->
+        Dropdown(
+            isDropdownMenuVisible = isDropdownMenuVisible,
+            setDropdownMenuVisible = { onClick(it) },
+            menuItems = menuItems
+        )
+    }
 }

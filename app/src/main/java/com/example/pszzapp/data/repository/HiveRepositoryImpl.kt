@@ -8,7 +8,9 @@ import com.example.pszzapp.data.model.ApiaryModel
 import com.example.pszzapp.data.model.HiveModel
 import com.example.pszzapp.domain.repository.ApiaryRepository
 import com.example.pszzapp.domain.repository.HiveRepository
+import com.example.pszzapp.presentation.apiary.RemoveApiaryState
 import com.example.pszzapp.presentation.apiary.create.CreateApiaryState
+import com.example.pszzapp.presentation.hive.RemoveHiveState
 import com.example.pszzapp.presentation.hive.create.CreateHiveState
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -18,6 +20,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.annotation.Single
 import java.time.LocalDate
+import kotlin.String
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -39,8 +42,6 @@ class HiveRepositoryImpl(
                     .orderBy("hiveCreatedDate", Query.Direction.DESCENDING)
                     .get()
                     .addOnSuccessListener { querySnapshot ->
-                        Log.d("LOG_H", querySnapshot.documents.toString())
-
                         for (document in querySnapshot.documents) {
                             val apiaryData = document.data
 
@@ -50,14 +51,16 @@ class HiveRepositoryImpl(
                                     uid = currentUser.uid,
                                     apiaryId = data["apiaryId"] as? String ?: "",
                                     name = data["name"] as? String ?: "",
-                                    familyType = data["familyType"] as? Int ?: 0,
-                                    hiveType = data["hiveType"] as? Int ?: 0,
-                                    breed = data["breed"] as? Int ?: 0,
+                                    familyType = (data["familyType"] as? Number)?.toInt() ?: 0,
+                                    hiveType = (data["hiveType"] as? Number)?.toInt() ?: 0,
+                                    breed = (data["breed"] as? Number)?.toInt() ?: 0,
                                     line = data["line"] as? String ?: "",
-                                    state = data["state"] as? Int ?: 0,
-                                    queenYear = data["queenYear"] as? Int ?: 0,
-                                    queenAddedDate = data["queenAddedDate"] as? LocalDate ?: LocalDate.now(),
-                                    hiveCreatedDate = data["hiveCreatedDate"] as? LocalDate ?: LocalDate.now(),
+                                    state = (data["state"] as? Number)?.toInt() ?: 0,
+                                    queenYear = (data["queenYear"] as? Number)?.toInt() ?: 0,
+                                    queenAddedDate = data["queenAddedDate"] as? LocalDate
+                                        ?: LocalDate.now(),
+                                    hiveCreatedDate = data["hiveCreatedDate"] as? LocalDate
+                                        ?: LocalDate.now(),
                                     queenNote = data["queenNote"] as? String ?: "",
                                 )
                                 hivesList.add(hive)
@@ -88,16 +91,20 @@ class HiveRepositoryImpl(
                                     uid = data["uid"] as? String ?: "",
                                     apiaryId = data["apiaryId"] as? String ?: "",
                                     name = data["name"] as? String ?: "",
-                                    familyType = data["familyType"] as? Int ?: 0,
-                                    hiveType = data["hiveType"] as? Int ?: 0,
-                                    breed = data["breed"] as? Int ?: 0,
+                                    familyType = (data["familyType"] as? Number)?.toInt() ?: 0,
+                                    hiveType = (data["hiveType"] as? Number)?.toInt() ?: 0,
+                                    breed = (data["breed"] as? Number)?.toInt() ?: 0,
                                     line = data["line"] as? String ?: "",
-                                    state = data["state"] as? Int ?: 0,
-                                    queenYear = data["queenYear"] as? Int ?: 0,
-                                    queenAddedDate = data["queenAddedDate"] as? LocalDate ?: LocalDate.now(),
-                                    hiveCreatedDate = data["hiveCreatedDate"] as? LocalDate ?: LocalDate.now(),
+                                    state = (data["state"] as? Number)?.toInt() ?: 0,
+                                    queenYear = (data["queenYear"] as? Number)?.toInt() ?: 0,
+                                    queenAddedDate = data["queenAddedDate"] as? LocalDate
+                                        ?: LocalDate.now(),
+                                    hiveCreatedDate = data["hiveCreatedDate"] as? LocalDate
+                                        ?: LocalDate.now(),
                                     queenNote = data["queenNote"] as? String ?: ""
                                 )
+
+                                Log.d("LOG_UL", hive.hiveType.toString())
 
                                 continuation.resume(hive)
                             } ?: continuation.resume(null)
@@ -140,18 +147,70 @@ class HiveRepositoryImpl(
             }
         }
 
-    override suspend fun removeHive(id: String): CreateHiveState =
+    override suspend fun editHive(hiveModel: HiveModel): CreateHiveState =
         suspendCancellableCoroutine { continuation ->
             if (firebaseAuth.currentUser != null) {
-                val docRef = firebaseFireStore
-                    .collection("hives")
-                    .whereEqualTo("docId", id)
+                firebaseAuth.currentUser?.let {
+                    firebaseFireStore
+                        .collection("hives")
+                        .document(hiveModel.id)
+                        .update(
+                            mapOf(
+                                "name" to hiveModel.name,
+                                "familyType" to hiveModel.familyType,
+                                "hiveType" to hiveModel.hiveType,
+                                "breed" to hiveModel.breed,
+                                "line" to hiveModel.line,
+                                "state" to hiveModel.state,
+                                "queenYear" to hiveModel.queenYear,
+                                "queenAddedDate" to hiveModel.queenAddedDate,
+                                "hiveCreatedDate" to hiveModel.hiveCreatedDate,
+                                "queenNote" to hiveModel.queenNote,
+                            ),
+                        )
 
-                docRef.get()
-
-                continuation.resume(CreateHiveState.Redirect(id))
+                    continuation.resume(CreateHiveState.Redirect(hiveId = hiveModel.id))
+                }
             } else {
-                continuation.resume(CreateHiveState.Error(context.getString(R.string.hive_state_no_user)))
+                continuation.resume(CreateHiveState.Error("hive_state_no_user"))
+            }
+        }
+
+    override suspend fun removeHive(
+        hiveId: String,
+    ): RemoveHiveState =
+        suspendCancellableCoroutine { continuation ->
+            if (firebaseAuth.currentUser != null) {
+                firebaseAuth.currentUser?.let { currentUser ->
+                    firebaseFireStore
+                        .collection("hives")
+                        .document(hiveId)
+                        .delete()
+                        .addOnSuccessListener {
+                            firebaseFireStore
+                                .collection("overviews")
+                                .whereEqualTo("hiveId", hiveId)
+                                .get()
+                                .addOnSuccessListener { documents ->
+                                    for (document in documents) {
+                                        document.reference.delete()
+                                            .addOnFailureListener { e ->
+                                                continuation.resume(RemoveHiveState.Error("Error deleting document: $e"))
+                                            }
+                                    }
+                                }
+                                .addOnFailureListener {
+                                    continuation.resume(RemoveHiveState.Error("exception"))
+                                }
+
+                            continuation.resume(RemoveHiveState.Success)
+                        }
+                        .addOnFailureListener {
+                            continuation.resume(RemoveHiveState.Error("exception"))
+                        }
+                }
+            } else {
+                continuation.resume(RemoveHiveState.Error("hive_state_no_user"))
             }
         }
 }

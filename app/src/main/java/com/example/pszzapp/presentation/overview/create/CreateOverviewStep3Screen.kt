@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -26,10 +25,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.pszzapp.R
-import com.example.pszzapp.data.model.HiveModel
 import com.example.pszzapp.data.model.OverviewModel
 import com.example.pszzapp.presentation.apiary.create.InputDate
-import com.example.pszzapp.presentation.apiary.create.InputSelect
 import com.example.pszzapp.presentation.apiary.create.TabsSelect
 import com.example.pszzapp.presentation.auth.base.Button
 import com.example.pszzapp.presentation.components.DatePicker
@@ -37,9 +34,7 @@ import com.example.pszzapp.presentation.components.LoadingDialog
 import com.example.pszzapp.presentation.components.TextError
 import com.example.pszzapp.presentation.components.TopBar
 import com.example.pszzapp.presentation.dashboard.BackgroundShapes
-import com.example.pszzapp.presentation.destinations.CreateOverviewStep2ScreenDestination
 import com.example.pszzapp.presentation.destinations.OverviewScreenDestination
-import com.example.pszzapp.presentation.hive.create.OptionsModal
 import com.example.pszzapp.presentation.hive.create.OptionsState
 import com.example.pszzapp.presentation.hive.create.StepsBelt
 import com.example.pszzapp.presentation.hive.create.rememberOptionsState
@@ -47,12 +42,10 @@ import com.example.pszzapp.presentation.hive.create.toFormattedDate
 import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.example.pszzapp.ui.theme.AppTheme
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import org.koin.androidx.compose.koinViewModel
-import java.time.LocalDate
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Destination
@@ -86,6 +79,7 @@ fun CreateOverviewStep3Screen(
     }
 }
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 private fun CreateOverviewLayout(
     viewModel: CreateOverviewViewModel,
@@ -210,14 +204,14 @@ private fun CreateOverviewForm(
         )
         if (workFrame.selectedOption == 1) {
             InputDate(
-                value = overviewData.workFrameDate.toFormattedDate(),
+                value = overviewData.workFrameDate?.toFormattedDate().toString(),
                 label = "Data wymiany ramki pracy",
                 setExpanded = onWorkFrameDateClick,
             )
         }
 
         InputDate(
-            value = overviewData.overviewDate.toFormattedDate(),
+            value = overviewData.overviewDate?.toFormattedDate().toString(),
             label = "Data przeglądu",
             setExpanded = onOverviewDateClick,
         )

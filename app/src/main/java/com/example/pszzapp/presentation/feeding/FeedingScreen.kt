@@ -134,8 +134,6 @@ private fun FeedingLayout(
                 backNavigation = { resultNavigator.navigateBack() },
                 title = "Karmienie",
                 menuItems = menuItems,
-                isModalActive = isModalActive,
-                setModal = setModal,
                 onSettingsClick = { isDropdownMenuVisible = true },
             )
 

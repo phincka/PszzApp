@@ -1,7 +1,6 @@
 package com.example.pszzapp.presentation.hive
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,11 +9,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.AttachEmail
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.PinDrop
-import androidx.compose.material.icons.outlined.WbSunny
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
@@ -35,8 +33,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.pszzapp.R
+import com.example.pszzapp.components.modalDialog.ModalDialog
 import com.example.pszzapp.data.model.HiveModel
 import com.example.pszzapp.data.util.DropdownMenuItemData
+import com.example.pszzapp.presentation.apiary.navToApiariesScreen
 import com.example.pszzapp.presentation.components.LoadingDialog
 import com.example.pszzapp.presentation.components.OverviewsLazyColumn
 import com.example.pszzapp.presentation.components.TextError
@@ -45,8 +45,8 @@ import com.example.pszzapp.presentation.dashboard.BackgroundShapes
 import com.example.pszzapp.presentation.dashboard.ButtonTile
 import com.example.pszzapp.presentation.dashboard.ButtonTiles
 import com.example.pszzapp.presentation.dashboard.navToOverview
-import com.example.pszzapp.presentation.destinations.ApiariesScreenDestination
 import com.example.pszzapp.presentation.destinations.CreateApiaryScreenDestination
+import com.example.pszzapp.presentation.destinations.CreateHiveStep1ScreenDestination
 import com.example.pszzapp.presentation.destinations.CreateOverviewStep1ScreenDestination
 import com.example.pszzapp.presentation.destinations.FeedingScreenDestination
 import com.example.pszzapp.presentation.destinations.OverviewScreenDestination
@@ -56,7 +56,6 @@ import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.example.pszzapp.ui.theme.AppTheme
 import com.example.pszzapp.ui.theme.Typography
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import org.koin.androidx.compose.koinViewModel
@@ -64,19 +63,23 @@ import org.koin.core.parameter.parametersOf
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Destination
-//@RootNavGraph(start = true)
-
 @Composable
 fun HiveScreen(
-    id: String = "M9I1XqC0P2xIqIFpLASb",
-    navigator: DestinationsNavigator,
+    id: String,
+    destinationsNavigator: DestinationsNavigator,
     resultNavigator: ResultBackNavigator<Boolean>,
     navController: NavController,
-    viewModel: HiveViewModel = koinViewModel(parameters = { parametersOf(id) })
+    viewModel: HiveViewModel = koinViewModel(parameters = { parametersOf(id) }),
 ) {
     val hiveState = viewModel.hiveState.collectAsState().value
     val overviewsState = viewModel.overviewsState.collectAsState().value
     val lastOverviewIdState = viewModel.lastOverviewIdState.collectAsState().value
+
+    val removeHiveState = viewModel.removeHiveState.collectAsState().value
+
+    if (removeHiveState is RemoveHiveState.Success) {
+        destinationsNavigator.navToApiariesScreen()
+    }
 
     var isModalActive by remember { mutableStateOf(false) }
 
@@ -87,23 +90,28 @@ fun HiveScreen(
                 DropdownMenuItemData(
                     icon = Icons.Outlined.Edit,
                     text = "Edytuj ul",
-                    onClick = { }
+                    onClick = {
+                        destinationsNavigator.navToEditHive(
+                            apiaryId = hiveState.hive.apiaryId,
+                            hiveModel = hiveState.hive
+                        )
+                    }
                 ),
-                DropdownMenuItemData(
-                    icon = Icons.Outlined.PinDrop,
-                    text = "Ogólne informacje",
-                    onClick = { }
-                ),
-                DropdownMenuItemData(
-                    icon = Icons.Outlined.WbSunny,
-                    text = "Informacje o matce",
-                    onClick = { }
-                ),
+//                DropdownMenuItemData(
+//                    icon = Icons.Outlined.PinDrop,
+//                    text = "Ogólne informacje",
+//                    onClick = { }
+//                ),
+//                DropdownMenuItemData(
+//                    icon = Icons.Outlined.WbSunny,
+//                    text = "Informacje o matce",
+//                    onClick = { }
+//                ),
                 DropdownMenuItemData(
                     icon = Icons.Outlined.AttachEmail,
                     text = "Dodaj przegląd",
                     onClick = {
-                        navigator.navigate(
+                        destinationsNavigator.navigate(
                             CreateOverviewStep1ScreenDestination(
                                 hiveId = hiveState.hive.id,
                                 apiaryId = hiveState.hive.apiaryId
@@ -164,9 +172,10 @@ fun HiveScreen(
                 setModal = { isModalActive = it },
                 hive = hiveState.hive,
                 overviewsState = overviewsState,
-                navigator = navigator,
+                navigator = destinationsNavigator,
                 buttonTilesNavigation = buttonTilesNavigation,
                 geOverviewsByHiveId = viewModel::geOverviewsByHiveId,
+                removeHive = viewModel::removeHive
             )
         }
 
@@ -189,6 +198,7 @@ fun HiveLayout(
     navigator: DestinationsNavigator,
     buttonTilesNavigation: List<ButtonTile>,
     geOverviewsByHiveId: (String) -> Unit,
+    removeHive: (String) -> Unit,
 ) {
     var isDropdownMenuVisible by remember { mutableStateOf(false) }
 
@@ -219,9 +229,8 @@ fun HiveLayout(
                 warningInfo = "Stan rojowy!",
                 subtitle = stringResource(CreateHiveConstants.hiveType[hive.hiveType]),
                 menuItems = menuItems,
-                isModalActive = isModalActive,
-                setModal = setModal,
                 onSettingsClick = { isDropdownMenuVisible = true },
+                isDropdownMenuVisible = isDropdownMenuVisible,
             )
 
             PrimaryTabRow(
@@ -288,9 +297,23 @@ fun HiveLayout(
             }
         }
     }
+
+    ModalDialog(
+        dialogTitle = "Usuń pasiekę",
+        dialogText = "Czy na pewno chcesz usunąć pasiekę?",
+        confirmButtonText = stringResource(R.string.remove_modal_remove),
+        dismissButtonText = stringResource(R.string.remove_modal_cancel),
+        icon = Icons.Filled.Warning,
+        isModalActive = isModalActive,
+        onDismissRequest = { setModal(false) },
+        onConfirmation = { removeHive(hive.id) },
+    )
 }
 
 data class TitleTab(
     val title: String,
     val onClick: (() -> Unit)? = null,
 )
+
+private fun DestinationsNavigator.navToEditHive(apiaryId: String, hiveModel: HiveModel) =
+    navigate(CreateHiveStep1ScreenDestination(apiaryId = apiaryId, hiveModel))

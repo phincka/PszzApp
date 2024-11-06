@@ -1,6 +1,7 @@
 package com.example.pszzapp.data.model
 
 import android.os.Parcelable
+import com.example.pszzapp.data.model.HiveModel
 import com.google.firebase.Timestamp
 import kotlinx.parcelize.Parcelize
 import java.time.LocalDate
@@ -23,10 +24,14 @@ data class OverviewModel(
     val honeyWarehouseNumbers: Int,
     val foodAmount: Int,
     val workFrame: Int,
-    val workFrameDate: LocalDate,
-    val overviewDate: LocalDate,
+    val workFrameDate: LocalDate? = null,
+    val overviewDate: LocalDate? = null,
     val note: String,
-): Parcelable
+): Parcelable {
+    constructor() : this(
+        "", "", "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, null, "",
+    )
+}
 
 data class ListItemOverviewModel(
     val id: String,
@@ -37,10 +42,11 @@ data class ListItemOverviewModel(
 
 data class DetailedOverviewModel(
     val id: String,
+    val apiaryId: String,
     val hiveId: String,
     val warningInfo: String? = null,
     val goodInfo: String? = null,
-    val overviewDate: LocalDate,
+    val overviewDate: LocalDate? = null,
     val overviewTiles: List<OverviewTile>,
 )
 

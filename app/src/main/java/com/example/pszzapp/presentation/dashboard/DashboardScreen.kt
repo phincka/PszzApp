@@ -251,10 +251,10 @@ fun CircleTopBar(
         }
     }
 
-    onSettingsClick?.let {
+    onSettingsClick?.let { onClick ->
         Dropdown(
             isDropdownMenuVisible = isDropdownMenuVisible,
-            setDropdownMenuVisible = { onSettingsClick(it) },
+            setDropdownMenuVisible = { onClick(it) },
             menuItems = menuItems
         )
     }

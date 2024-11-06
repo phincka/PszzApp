@@ -6,8 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.pszzapp.data.model.HiveModel
 import com.example.pszzapp.data.model.ListItemOverviewModel
 import com.example.pszzapp.domain.usecase.hive.GetHiveByIdUseCase
+import com.example.pszzapp.domain.usecase.hive.RemoveHiveUseCase
 import com.example.pszzapp.domain.usecase.overview.GetLastOverviewIdUseCase
 import com.example.pszzapp.domain.usecase.overview.GetOverviewsByHiveIdUseCase
+import com.example.pszzapp.presentation.apiary.RemoveApiaryState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -20,6 +22,7 @@ class HiveViewModel(
     private val getHiveByIdUseCase: GetHiveByIdUseCase,
     private val getOverviewsByHiveIdUseCase: GetOverviewsByHiveIdUseCase,
     private val getLastOverviewIdUseCase: GetLastOverviewIdUseCase,
+    private val removeHiveUseCase: RemoveHiveUseCase,
 ) : ViewModel() {
     private val _hiveState: MutableStateFlow<HiveState> = MutableStateFlow(HiveState.Loading)
     val hiveState: StateFlow<HiveState> = _hiveState
@@ -29,6 +32,9 @@ class HiveViewModel(
 
     private val _lastOverviewIdState: MutableStateFlow<LastOverviewIdState> = MutableStateFlow(LastOverviewIdState.None)
     val lastOverviewIdState: StateFlow<LastOverviewIdState> = _lastOverviewIdState
+
+    private val _removeHiveState: MutableStateFlow<RemoveHiveState> = MutableStateFlow(RemoveHiveState.None)
+    val removeHiveState: StateFlow<RemoveHiveState> = _removeHiveState
 
     init {
         getHiveById(id)
@@ -80,6 +86,18 @@ class HiveViewModel(
             }
         }
     }
+
+    fun removeHive(
+        hiveId: String,
+    ) {
+        viewModelScope.launch {
+            try {
+                _removeHiveState.value = removeHiveUseCase(hiveId = hiveId)
+            } catch (e: Exception) {
+                _removeHiveState.value = RemoveHiveState.Error("${e.message}")
+            }
+        }
+    }
 }
 
 sealed class HiveState {
@@ -99,4 +117,10 @@ sealed class OverviewsState {
     data object Loading : OverviewsState()
     data class Success(val overviews: List<ListItemOverviewModel>) : OverviewsState()
     data class Error(val message: String) : OverviewsState()
+}
+
+sealed class RemoveHiveState {
+    data object None : RemoveHiveState()
+    data object Success : RemoveHiveState()
+    data class Error(val message: String) : RemoveHiveState()
 }

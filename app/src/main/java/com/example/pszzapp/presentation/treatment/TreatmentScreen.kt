@@ -132,8 +132,6 @@ private fun TreatmentLayout(
                 backNavigation = { resultNavigator.navigateBack() },
                 title = "Leczenie",
                 menuItems = menuItems,
-                isModalActive = isModalActive,
-                setModal = setModal,
                 onSettingsClick = { isDropdownMenuVisible = true },
             )
 

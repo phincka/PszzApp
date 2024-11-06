@@ -193,6 +193,7 @@ class OverviewRepositoryImpl(
 
                             val detailedOverview = DetailedOverviewModel(
                                 id = overview.id,
+                                apiaryId = overview.apiaryId,
                                 hiveId = overview.hiveId,
                                 warningInfo = if (overview.cellType == 2) "Stan rojowy" else null,
                                 goodInfo = if (overview.strength == 2) "Rodzina jest zdrowa i silna" else null,

@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.pszzapp.R
+import com.example.pszzapp.data.model.HiveModel
 import com.example.pszzapp.data.model.OverviewModel
 import com.example.pszzapp.presentation.apiary.create.InputSelect
 import com.example.pszzapp.presentation.apiary.create.TabsSelect
@@ -58,6 +60,7 @@ fun CreateOverviewStep1Screen(
     viewModel: CreateOverviewViewModel = koinViewModel(),
     hiveId: String,
     apiaryId: String,
+    overviewModel: OverviewModel? = null,
 ) {
     val createOverviewState = viewModel.createOverviewState.collectAsState().value
 
@@ -72,7 +75,8 @@ fun CreateOverviewStep1Screen(
             createOverviewState = createOverviewState,
             onFormComplete = {
                 navigator.navigate(CreateOverviewStep2ScreenDestination(overviewData = it))
-            }
+            },
+            overviewModel = overviewModel,
         )
 
         is CreateOverviewState.Redirect -> navigator.navigate(OverviewScreenDestination(overviewId = createOverviewState.overviewId))
@@ -81,6 +85,7 @@ fun CreateOverviewStep1Screen(
     }
 }
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 private fun CreateOverviewLayout(
     resultNavigator: ResultBackNavigator<Boolean>,
@@ -88,7 +93,8 @@ private fun CreateOverviewLayout(
     hiveId: String,
     apiaryId: String,
     createOverviewState: CreateOverviewState,
-    onFormComplete: (OverviewModel) -> Unit
+    onFormComplete: (OverviewModel) -> Unit,
+    overviewModel: OverviewModel? = null,
 ) {
     var overviewDataStep1: OverviewModel by remember {
         mutableStateOf(
@@ -114,6 +120,14 @@ private fun CreateOverviewLayout(
                 note = "",
             )
         )
+    }
+
+    var overviewData by remember { mutableStateOf(OverviewModel()) }
+
+    LaunchedEffect(overviewModel) {
+        overviewModel?.let {
+            overviewData = overviewModel
+        }
     }
 
     var strength by rememberOptionsState(OverviewConstants.strength)

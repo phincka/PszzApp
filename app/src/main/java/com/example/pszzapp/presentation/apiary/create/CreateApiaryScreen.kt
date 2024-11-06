@@ -90,6 +90,7 @@ fun CreateApiaryScreen(
     )
 }
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 private fun CreateApiaryLayout(
     resultNavigator: ResultBackNavigator<Boolean>,

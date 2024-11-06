@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.CardDefaults
@@ -35,13 +36,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.pszzapp.R
+import com.example.pszzapp.components.modalDialog.ModalDialog
 import com.example.pszzapp.data.model.DetailedOverviewModel
+import com.example.pszzapp.data.model.HiveModel
 import com.example.pszzapp.data.model.OverviewModel
 import com.example.pszzapp.data.util.DropdownMenuItemData
 import com.example.pszzapp.presentation.components.LoadingDialog
 import com.example.pszzapp.presentation.components.TextError
 import com.example.pszzapp.presentation.components.TopBar
 import com.example.pszzapp.presentation.dashboard.BackgroundShapes
+import com.example.pszzapp.presentation.destinations.CreateHiveStep1ScreenDestination
+import com.example.pszzapp.presentation.destinations.CreateHiveStep1ScreenDestination.invoke
+import com.example.pszzapp.presentation.destinations.CreateOverviewStep1ScreenDestination
 import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.example.pszzapp.presentation.overview.create.OverviewConstants
 import com.example.pszzapp.ui.theme.AppTheme
@@ -64,8 +70,6 @@ fun OverviewScreen(
     navController: NavController,
     overviewViewModel: OverviewViewModel = koinViewModel(parameters = { parametersOf(overviewId) })
 ) {
-//    TextError(overviewId)
-//    val hiveState = hiveViewModel.hiveState.collectAsState().value
     val overviewState = overviewViewModel.overviewState.collectAsState().value
 
     var isModalActive by remember { mutableStateOf(false) }
@@ -76,7 +80,11 @@ fun OverviewScreen(
                 DropdownMenuItemData(
                     icon = Icons.Outlined.Edit,
                     text = "Edytuj przegląd",
-                    onClick = { }
+                    onClick = { navigator.navToEditOverview(
+                        apiaryId = overviewState.overview.apiaryId,
+                        hiveId = overviewState.overview.hiveId,
+                        overviewModel = null,
+                    ) }
                 ),
                 DropdownMenuItemData(
                     icon = Icons.Outlined.Clear,
@@ -93,7 +101,7 @@ fun OverviewScreen(
                 menuItems = menuItems,
                 isModalActive = isModalActive,
                 setModal = { isModalActive = it },
-                navigator = navigator,
+                removeOverview = {  },
                 overview = overviewState.overview
             )
         }
@@ -111,7 +119,7 @@ private fun OverviewLayout(
     menuItems: List<DropdownMenuItemData>,
     isModalActive: Boolean,
     setModal: (Boolean) -> Unit,
-    navigator: DestinationsNavigator,
+    removeOverview: (String) -> Unit,
     overview: DetailedOverviewModel,
 ) {
     var isDropdownMenuVisible by remember { mutableStateOf(false) }
@@ -130,11 +138,10 @@ private fun OverviewLayout(
                 warningInfo = overview.warningInfo,
                 goodInfo = overview.goodInfo,
                 columnInfo = true,
-                subtitle = overview.overviewDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                subtitle = overview.overviewDate?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
                 menuItems = menuItems,
-                isModalActive = isModalActive,
-                setModal = setModal,
                 onSettingsClick = { isDropdownMenuVisible = true },
+                isDropdownMenuVisible = isDropdownMenuVisible,
             )
 
             Column(
@@ -200,4 +207,18 @@ private fun OverviewLayout(
             }
         }
     }
+
+    ModalDialog(
+        dialogTitle = "Usuń przegląd",
+        dialogText = "Czy na pewno chcesz usunąć przegląd?",
+        confirmButtonText = stringResource(R.string.remove_modal_remove),
+        dismissButtonText = stringResource(R.string.remove_modal_cancel),
+        icon = Icons.Filled.Warning,
+        isModalActive = isModalActive,
+        onDismissRequest = { setModal(false) },
+        onConfirmation = { removeOverview(overview.id) },
+    )
 }
+
+private fun DestinationsNavigator.navToEditOverview(apiaryId: String, hiveId: String, overviewModel: OverviewModel?) =
+    navigate(CreateOverviewStep1ScreenDestination(apiaryId = apiaryId, hiveId = hiveId, overviewModel = overviewModel))
