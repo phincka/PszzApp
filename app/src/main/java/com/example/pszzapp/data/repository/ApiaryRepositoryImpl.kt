@@ -1,6 +1,7 @@
 package com.example.pszzapp.data.repository
 
 import android.content.Context
+import android.util.Log
 import com.example.pszzapp.R
 import com.example.pszzapp.data.model.ApiaryModel
 import com.example.pszzapp.domain.repository.ApiaryRepository
@@ -45,7 +46,6 @@ class ApiaryRepositoryImpl(
                     for (document in querySnapshot.documents) {
                         val apiaryData = document.data
                         apiaryData?.let { data ->
-
                             var apiary = ApiaryModel(
                                 id = document.id,
                                 uid = currentUser.uid,

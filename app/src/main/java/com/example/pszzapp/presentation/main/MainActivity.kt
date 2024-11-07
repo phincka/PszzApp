@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.rememberNavController
 import com.example.pszzapp.ui.theme.AppTheme
 import com.example.pszzapp.presentation.NavGraphs
+import com.example.pszzapp.presentation.dashboard.BackgroundShapes
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
@@ -49,6 +50,8 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .fillMaxSize()
                     ) {
+                        BackgroundShapes()
+
                         BottomNavigationBar(
                             navController
                         ) {

@@ -1,6 +1,7 @@
 package com.example.pszzapp.presentation.dashboard
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -69,6 +70,7 @@ fun DashboardScreen(
     viewModel: DashboardViewModel = koinViewModel(),
     navController: NavController,
 ) {
+    Log.d("LOG_DASZ", "DASHBOARD")
     val lastOverviewsState = viewModel.lastOverviewsState.collectAsState().value
 
     val buttonTilesNavigation = listOf(
@@ -89,8 +91,6 @@ fun DashboardScreen(
             .bottomBarPadding(navController = navController)
             .fillMaxSize()
     ) {
-        BackgroundShapes()
-
         when (val accountUserState = viewModel.accountUserState.collectAsState().value) {
             is AccountUserState.Loading -> LoadingDialog()
 

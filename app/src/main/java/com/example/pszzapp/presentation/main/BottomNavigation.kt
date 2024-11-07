@@ -2,29 +2,23 @@ package com.example.pszzapp.presentation.main
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.AddCard
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -40,41 +34,43 @@ import com.example.pszzapp.presentation.destinations.DashboardScreenDestination
 import com.example.pszzapp.presentation.destinations.HiveScreenDestination
 import com.example.pszzapp.presentation.destinations.OverviewScreenDestination
 import com.example.pszzapp.presentation.destinations.QrScannerScreenDestination
+import com.example.pszzapp.ui.theme.AppTheme
 import com.ramcosta.composedestinations.navigation.clearBackStack
 import com.ramcosta.composedestinations.navigation.popBackStack
 import com.ramcosta.composedestinations.navigation.popUpTo
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.spec.Route
-
+import com.example.pszzapp.R
 
 enum class BottomNavigationItems(
     val direction: Route,
-    val icon: ImageVector,
+    val icon: Int,
     val label: String,
 ) {
     Dashboard(
         direction = DashboardScreenDestination,
-        icon = Icons.Default.Home,
+        icon = R.drawable.home,
         label = "Dashboard",
     ),
     Apiaries(
         direction = ApiariesScreenDestination,
-        icon = Icons.Default.AddCard,
+        icon = R.drawable.apiary,
         label = "Pasieki",
     ),
     QrScanner(
         direction = QrScannerScreenDestination,
-        icon = Icons.Default.CameraAlt,
+        icon = R.drawable.camera_white,
         label = "Skaner",
     ),
-    Notifications(
+
+        Notifications(
         direction = AccountScreenDestination,
-        icon = Icons.Default.Notifications,
+        icon = R.drawable.notification,
         label = "Powiadomienia",
     ),
     Account(
         direction = AccountScreenDestination,
-        icon = Icons.Default.AccountCircle,
+        icon = R.drawable.account,
         label = "Konto",
     ),
 }
@@ -111,17 +107,19 @@ fun BottomNavigationBar(
     )
 
     Scaffold(
+        containerColor = Color.Transparent,
         bottomBar = {
             currentRoute?.let {
                 Column(modifier = Modifier
                     .offset {
-                    IntOffset(
-                        x = 0,
-                        y = bottomBarOffset.roundToPx()
-                    )
-                }) {
+                        IntOffset(
+                            x = 0,
+                            y = bottomBarOffset.roundToPx()
+                        )
+                    }) {
                     NavigationBar(
-                        modifier = Modifier.height(BOTTOM_BAR_HEIGHT)
+                        modifier = Modifier.height(BOTTOM_BAR_HEIGHT),
+                        containerColor = Color.Transparent,
                     ) {
                         BottomNavigationItems.entries.forEach { item ->
                             val route = item.direction.route
@@ -138,7 +136,11 @@ fun BottomNavigationBar(
                             val isSelected = rootBottomNavItemRoute == route
 
                             NavigationBarItem(
-                                icon = { Icon(item.icon, contentDescription = item.label) },
+                                icon = { Icon(
+                                    modifier = Modifier.size(32.dp),
+                                    painter = painterResource(item.icon ),
+                                    contentDescription = item.label)
+                               },
 //                                label = { Text(item.label) },
                                 selected = isSelected,
                                 onClick = {
@@ -151,6 +153,15 @@ fun BottomNavigationBar(
                                         )
                                     }
                                 },
+                                colors = NavigationBarItemColors(
+                                    selectedIndicatorColor = Color.Transparent,
+                                    selectedIconColor = AppTheme.colors.primary50,
+                                    selectedTextColor = AppTheme.colors.primary50,
+                                    unselectedIconColor = AppTheme.colors.neutral30,
+                                    unselectedTextColor = AppTheme.colors.neutral30,
+                                    disabledIconColor = AppTheme.colors.neutral10,
+                                    disabledTextColor = AppTheme.colors.neutral10,
+                                ),
                             )
                         }
                     }
