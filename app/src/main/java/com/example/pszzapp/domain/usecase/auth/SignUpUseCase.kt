@@ -7,5 +7,5 @@ import org.koin.core.annotation.Single
 class SignUpUseCase(
     private val authRepository: AuthRepository
 ) {
-    suspend operator fun invoke(email: String, password: String, repeatPassword: String) = authRepository.firebaseEmailSignUp(email, password, repeatPassword)
+    suspend operator fun invoke(name: String, email: String, password: String, repeatPassword: String) = authRepository.firebaseEmailSignUp(name, email, password, repeatPassword)
 }

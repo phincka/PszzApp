@@ -6,6 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.pszzapp.ui.theme.AppTheme
+import com.example.pszzapp.ui.theme.AppTypography
 import com.example.pszzapp.ui.theme.Typography
 
 @Composable
@@ -14,8 +16,8 @@ fun TextError(
 ) {
     Text(
         text = text,
-        color = Color.Red,
-        style = Typography.labelMedium,
-        modifier = Modifier.padding(top = 16.dp),
+        color = AppTheme.colors.primary50,
+        style = Typography.p,
+        modifier = Modifier.padding(bottom = 16.dp),
     )
 }

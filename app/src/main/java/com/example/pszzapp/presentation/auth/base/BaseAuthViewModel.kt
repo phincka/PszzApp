@@ -1,4 +1,4 @@
-package com.example.pszzapp.presentation.auth.signIn
+package com.example.pszzapp.presentation.auth.base
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -1,14 +1,18 @@
 <resources>
     <string name="app_name">pszzapp</string>
 
-    <!-- SignIn screen start -->
+    !-- SignIn screen start -->
     <string name="signIn_title">Logowanie</string>
+    <string name="signIn_form_name">Imię</string>
     <string name="signIn_form_login">E-mail</string>
     <string name="signIn_form_password">Hasło</string>
+    <string name="signIn_form_repeat_password">Powtórz hasło</string>
     <string name="signIn_login_button">Zaloguj się</string>
     <string name="signIn_register_button">Utwórz konto</string>
     <string name="signIn_reset_password_text">Nie pamiętasz hasła?</string>
     <string name="signIn_reset_password_button">Zresetuj hasło</string>
+    <string name="signUp_signIn_text">Masz już konto?</string>
+    <string name="signUp_signIn_button">Zaloguj się</string>
     <!-- SignIn screen end -->
 
     <!-- SignUp screen start -->
@@ -53,7 +57,18 @@
     <string name="home_loading">Ładownie…</string>
     <!-- Home screen end -->
 
+    <!-- Apiary screen start -->
+    <string name="apiary_form_name_label">Nazwa pasieki</string>
+    <string name="apiary_form_type_title">Rodzaj pasieki</string>
+    <string name="apiary_form_location_label">Lokalizacja</string>
+    <string name="apiary_type_1">Pasieka stacjonarna</string>
+    <string name="apiary_type_2">Pasieka wędrowna</string>
+    <string name="create_apiary_button">Dodaj pasiekę</string>
+    <!-- Apiary screen end -->
+
+
     <!-- Hive screen start -->
+    <string name="create_hive">Dodaj rodzinę</string>
     <string name="hive_top_bar_title">Ul</string>
     <string name="home_no_hive">Ul o podanym ID nie istnieje</string>
     <string name="hive_tab_name_summary">Podsumowanie</string>
@@ -67,22 +82,73 @@
     <string name="hive_remove_modal_title">Usuń ul</string>
     <string name="hive_remove_modal_text">Czy na pewno chcesz usunąć ul?</string>
     <string name="hive_loading">Ładownie…</string>
+    <string name="next">Dalej</string>
+    <string name="save">Zapisz</string>
+
+
+    <string name="hive_name">Numer/nazwa ula</string>
+
+    <string name="hive_family_type_1">Odkład</string>
+    <string name="hive_family_type_2">Produkcyjna</string>
+    <string name="hive_family_type_3">Wychowująca</string>
+
+    <string name="hive_hive_type_1">Wielkopolski</string>
+    <string name="hive_hive_type_2">Dadant</string>
+    <string name="hive_hive_type_3">Warszawski</string>
+
+    <string name="hive_breed_1">Unasienniona</string>
+    <string name="hive_breed_2">Nieunasienniona</string>
+
+    <string name="hive_queen_year_1">Biały</string>
+    <string name="hive_queen_year_2">Żółty</string>
+    <string name="hive_queen_year_3">Czerwony</string>
+    <string name="hive_queen_year_4">Zielony</string>
+    <string name="hive_queen_year_5">Niebieski</string>
+
+    <string name="family_type">Typ rodziny</string>
+    <string name="hive_type">Rodzaj ula</string>
+    <string name="queen_breed">Rasa</string>
+    <string name="queen_line">Linia</string>
+    <string name="queen_year">Oznaczenie matki</string>
+    <string name="queen_state">Stan matki</string>
+    <string name="hive_queen_added_date">Data poddania matki</string>
+    <string name="created_date">Data stworzenia ula</string>
+    <string name="queen_note">Notatka</string>
+    <string name="queen_note_placeholder">Wpisz treść notatki</string>
     <!-- Hive screen end -->
 
-    <!-- Create hive screen start -->
-    <string name="create_hive_title">Dodaj nowy ul</string>
-    <string name="create_hive_form_hive_title">Informacje o ulu</string>
-    <string name="create_hive_form_queen_title">Informacje o matce</string>
-    <string name="create_hive_form_name">Nazwa ula</string>
-    <string name="create_hive_form_family_type">Typ rodziny</string>
-    <string name="create_hive_form_type">Rodzaj ula</string>
-    <string name="create_hive_form_queen_breed">Rasa</string>
-    <string name="create_hive_form_queen_line">Linia</string>
+    <!-- Overview screen start -->
+    <string name="overview_strengt">Siła rodziny</string>
+    <string name="overview_strengts_1">Słaba</string>
+    <string name="overview_strengts_2">Normalna</string>
+    <string name="overview_strengts_3">Silna</string>
+
+    <string name="overview_mood">Nastrój</string>
+    <string name="overview_moods_1">Łagodny</string>
+    <string name="overview_moods_2">Normalny</string>
+    <string name="overview_moods_3">Agresywny</string>
+
+    <string name="yes">Tak</string>
+    <string name="no">Nie</string>
+
+
+    <string name="overview_numbers_1">1</string>
+    <string name="overview_numbers_2">2</string>
+    <string name="overview_numbers_3">3</string>
+    <string name="overview_numbers_4">4</string>
+    <string name="overview_numbers_5">5</string>
+    <string name="overview_numbers_6">6</string>
+    <string name="overview_numbers_7">7</string>
+    <string name="overview_numbers_8">8</string>
+    <string name="overview_numbers_9">9</string>
+    <string name="overview_numbers_10">10</string>
+
+
     <string name="create_hive_form_queen_year">Oznaczenie matki</string>
     <string name="create_hive_form_queen_state">Stan</string>
     <string name="create_hive_form_queen_note">Notatka</string>
     <string name="create_hive_form_button">Utwórz ul</string>
-    <!-- Create hive screen end -->
+    <!-- Overview screen end -->
 
     <!-- Add hive location screen start -->
     <string name="add_hive_location_title">Dodaj lokalizacje</string>
@@ -131,4 +197,9 @@
     <string name="home_screen">Home</string>
     <string name="hive_screen">Hive</string>
     <!-- Remove modal end -->
+    <string name="concentration_2_1">2:1</string>
+    <string name="concentration_1_1">1:1</string>
+    <string name="concentration_3_2">3:2</string>
+
+
 </resources>
