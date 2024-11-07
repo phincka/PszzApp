@@ -268,8 +268,8 @@ private fun Map<String, Any>.toOverviewModel(): OverviewModel {
         honeyWarehouseNumbers = this["honeyWarehouseNumbers"] as? Int ?: 0,
         foodAmount = this["foodAmount"] as? Int ?: 0,
         workFrame = this["workFrame"] as? Int ?: 0,
-        workFrameDate = this["workFrameDate"] as? LocalDate ?: LocalDate.now(),
-        overviewDate = this["overviewDate"] as? LocalDate ?: LocalDate.now(),
+        workFrameDate = getLocalDateFromFirestore(this, "workFrameDate"),
+        overviewDate = getLocalDateFromFirestore(this, "overviewDate"),
         note = this["note"] as? String ?: ""
     )
 }
@@ -277,6 +277,19 @@ private fun Map<String, Any>.toOverviewModel(): OverviewModel {
 private fun Map<String, Any>.toListItemOverviewModel(): ListItemOverviewModel {
     return ListItemOverviewModel(
         id = this["id"] as? String ?: "",
-        overviewDate = this["overviewDate"] as? LocalDate ?: LocalDate.now(),
+        overviewDate = getLocalDateFromFirestore(this, "overviewDate"),
     )
+}
+
+fun getLocalDateFromFirestore(data: Map<String, Any>, key: String): LocalDate {
+    val dateMap = data[key] as? Map<String, Any>
+    return if (dateMap != null) {
+        val year = (dateMap["year"] as? Number)?.toInt() ?: 0
+        val month = (dateMap["monthValue"] as? Number)?.toInt() ?: 1
+        val day = (dateMap["dayOfMonth"] as? Number)?.toInt() ?: 1
+
+        LocalDate.of(year, month, day)
+    } else {
+        LocalDate.now()
+    }
 }

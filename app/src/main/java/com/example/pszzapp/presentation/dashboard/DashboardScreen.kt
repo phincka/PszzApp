@@ -78,7 +78,7 @@ fun DashboardScreen(
             direction = ApiariesScreenDestination,
         ),
         ButtonTile(
-            title = "Masowe działania",
+            title = "Dodaj pasiekę",
             icon = R.drawable.ic_tile_button,
             direction = CreateApiaryScreenDestination(),
         )
@@ -133,10 +133,10 @@ fun DashboardLayout(
             buttonTilesNavigation = buttonTilesNavigation,
         )
 
-        EndangeredHives(
-            sectionTitle = "Ula wymagające działania",
-            navigator = navigator,
-        )
+//        EndangeredHives(
+//            sectionTitle = "Ula wymagające działania",
+//            navigator = navigator,
+//        )
 
         LastOverviews(
             sectionTitle = "Ostatnie przeglądy",
