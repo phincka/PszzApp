@@ -52,7 +52,7 @@ import org.koin.core.parameter.parametersOf
 @Destination
 @Composable
 fun TreatmentScreen(
-    hiveId: String,
+    hiveId: String = "EpSAjdCNLwnVfdezmF45",
     navigator: DestinationsNavigator,
     resultNavigator: ResultBackNavigator<Boolean>,
     navController: NavController,
