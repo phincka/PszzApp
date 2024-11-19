@@ -1,6 +1,7 @@
 package com.example.pszzapp.presentation.overview.create
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -44,11 +45,9 @@ import com.example.pszzapp.presentation.hive.create.rememberOptionsState
 import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.example.pszzapp.ui.theme.AppTheme
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import org.koin.androidx.compose.koinViewModel
-import java.time.LocalDate
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Destination
@@ -62,9 +61,7 @@ fun CreateOverviewStep1Screen(
     apiaryId: String,
     overviewModel: OverviewModel? = null,
 ) {
-    val createOverviewState = viewModel.createOverviewState.collectAsState().value
-
-    when (createOverviewState) {
+    when (val createOverviewState = viewModel.createOverviewState.collectAsState().value) {
         is CreateOverviewState.Loading -> LoadingDialog()
 
         is CreateOverviewState.Success -> CreateOverviewLayout(
@@ -74,7 +71,12 @@ fun CreateOverviewStep1Screen(
             apiaryId = apiaryId,
             createOverviewState = createOverviewState,
             onFormComplete = {
-                navigator.navigate(CreateOverviewStep2ScreenDestination(overviewData = it))
+                navigator.navigate(
+                    CreateOverviewStep2ScreenDestination(
+                        isEditing = overviewModel != null,
+                        overviewData = it
+                    )
+                )
             },
             overviewModel = overviewModel,
         )
@@ -96,45 +98,37 @@ private fun CreateOverviewLayout(
     onFormComplete: (OverviewModel) -> Unit,
     overviewModel: OverviewModel? = null,
 ) {
-    var overviewDataStep1: OverviewModel by remember {
-        mutableStateOf(
-            OverviewModel(
-                id = "",
-                uid = "",
-                apiaryId = apiaryId,
-                hiveId = hiveId,
-                strength = 0,
-                mood = 0,
-                beeMaggots = 0,
-                cellType = 0,
-                partitionGrid = 0,
-                insulator = 0,
-                pollenCatcher = 0,
-                propolisCatcher = 0,
-                honeyWarehouse = 0,
-                honeyWarehouseNumbers = 0,
-                foodAmount = 0,
-                workFrame = 0,
-                workFrameDate = LocalDate.now(),
-                overviewDate = LocalDate.now(),
-                note = "",
-            )
-        )
-    }
+    val isEditing = overviewModel != null
+    var overviewData by remember(overviewModel) { mutableStateOf(overviewModel ?: OverviewModel(
+        hiveId = hiveId,
+        apiaryId = apiaryId,
+    )) }
 
-    var overviewData by remember { mutableStateOf(OverviewModel()) }
-
-    LaunchedEffect(overviewModel) {
-        overviewModel?.let {
-            overviewData = overviewModel
-        }
-    }
-
-    var strength by rememberOptionsState(OverviewConstants.strength)
-    var mood by rememberOptionsState(OverviewConstants.mood)
-    var beeMaggots by rememberOptionsState(OverviewConstants.beeMaggots)
-    var showCells by rememberOptionsState(OverviewConstants.showCells)
-    var cellTypes by rememberOptionsState(OverviewConstants.cells)
+    var strength by rememberOptionsState(
+        options = OverviewConstants.strength,
+        selectedOption = overviewData.strength,
+        changed = isEditing,
+    )
+    var mood by rememberOptionsState(
+        options = OverviewConstants.mood,
+        selectedOption = overviewData.mood,
+        changed = isEditing,
+    )
+    var beeMaggots by rememberOptionsState(
+        options = OverviewConstants.beeMaggots,
+        selectedOption = overviewData.beeMaggots,
+        changed = isEditing,
+    )
+    var showCells by rememberOptionsState(
+        options = OverviewConstants.showCells,
+        selectedOption = if (overviewData.cellType != 0) 1 else 0,
+        changed = overviewData.cellType != 0,
+    )
+    var cellTypes by rememberOptionsState(
+        options = OverviewConstants.cells,
+        selectedOption = overviewData.cellType,
+        changed = isEditing,
+    )
 
     BoxWithConstraints(
         modifier = Modifier
@@ -150,7 +144,7 @@ private fun CreateOverviewLayout(
         ) {
             TopBar(
                 backNavigation = { resultNavigator.navigateBack() },
-                title = "Dodaj przegląd",
+                title = if (overviewModel != null) "Edytuj przegląd" else "Dodaj przegląd",
             )
 
             StepsBelt(maxSteps = 3, currentStep = 1)
@@ -181,13 +175,13 @@ private fun CreateOverviewLayout(
                     text = stringResource(R.string.next),
                     showIcon = true,
                     onClick = {
-                        overviewDataStep1 = overviewDataStep1.copy(
+                        overviewData = overviewData.copy(
                             strength = strength.selectedOption,
                             mood = mood.selectedOption,
                             beeMaggots = beeMaggots.selectedOption,
                             cellType = cellTypes.selectedOption,
                         )
-                        onFormComplete(overviewDataStep1)
+                        onFormComplete(overviewData)
                     }
                 )
             }

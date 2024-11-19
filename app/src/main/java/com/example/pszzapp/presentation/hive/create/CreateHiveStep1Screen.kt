@@ -50,6 +50,7 @@ fun CreateHiveStep1Screen(
     hiveModel: HiveModel? = null,
 ) {
     val createHiveState by viewModel.createHiveState.collectAsState()
+    val isEditing = hiveModel != null
 
     CreateHiveLayout(
         navController = navController,
@@ -57,12 +58,15 @@ fun CreateHiveStep1Screen(
         createHiveState = createHiveState,
         apiaryId = apiaryId,
         onHiveCreated = { hiveData ->
-            navigator.navigate(CreateHiveStep2ScreenDestination(
-                hiveData = hiveData,
-                isEditing = hiveModel != null,
-            ))
+            navigator.navigate(
+                CreateHiveStep2ScreenDestination(
+                    hiveData = hiveData,
+                    isEditing = isEditing,
+                )
+            )
         },
         hiveModel = hiveModel,
+        isEditing = isEditing,
     )
 }
 
@@ -75,19 +79,22 @@ private fun CreateHiveLayout(
     createHiveState: CreateHiveState,
     onHiveCreated: (HiveModel) -> Unit,
     hiveModel: HiveModel? = null,
+    isEditing: Boolean,
 ) {
+    var hiveData by remember(hiveModel) { mutableStateOf(hiveModel ?: HiveModel()) }
+
     val hiveCreatedDateState = rememberMaterialDialogState()
 
-    var familyTypeOptions by rememberOptionsState(CreateHiveConstants.familyType)
-    var hiveTypeOptions by rememberOptionsState(CreateHiveConstants.hiveType)
-
-    var hiveData by remember { mutableStateOf(HiveModel()) }
-
-    LaunchedEffect(hiveModel) {
-        hiveModel?.let {
-            hiveData = hiveModel
-        }
-    }
+    var familyTypeOptions by rememberOptionsState(
+        options = CreateHiveConstants.familyType,
+        selectedOption = hiveData.familyType,
+        changed = isEditing
+    )
+    var hiveTypeOptions by rememberOptionsState(
+        options = CreateHiveConstants.hiveType,
+        selectedOption = hiveData.hiveType,
+        changed = isEditing
+    )
 
     BoxWithConstraints(
         modifier = Modifier
@@ -103,7 +110,7 @@ private fun CreateHiveLayout(
         ) {
             TopBar(
                 backNavigation = { resultNavigator.navigateBack() },
-                title = stringResource(R.string.create_hive),
+                title = if (isEditing) "Edytuj rodzinę" else stringResource(R.string.create_hive),
             )
 
             StepsBelt(maxSteps = 3, currentStep = 1)
@@ -219,13 +226,17 @@ private fun CreateHiveForm(
 }
 
 @Composable
-fun rememberOptionsState(options: List<Int>): MutableState<OptionsState> {
+fun rememberOptionsState(
+    options: List<Int>,
+    selectedOption: Int = 0,
+    changed: Boolean = false,
+): MutableState<OptionsState> {
     return remember {
         mutableStateOf(
             OptionsState(
                 expanded = false,
-                selectedOption = 0,
-                changed = false,
+                selectedOption = selectedOption,
+                changed = changed,
                 options = options
             )
         )

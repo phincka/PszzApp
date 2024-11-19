@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -31,7 +30,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -81,6 +79,15 @@ fun ApiaryScreen(
     navController: NavController,
     snackbarHandler: SnackbarHandler,
 ) {
+    val backStackEntry = navController.currentBackStackEntry
+    val refresh = backStackEntry?.savedStateHandle?.get<Boolean>("refresh")
+
+    LaunchedEffect(refresh) {
+        if (refresh == true) {
+            viewModel.getHivesByApiaryId(id)
+        }
+    }
+
     val apiaryState = viewModel.apiaryState.collectAsState().value
     val removeApiaryState = viewModel.removeApiaryState.collectAsState().value
 
@@ -105,6 +112,7 @@ fun ApiaryScreen(
             .fillMaxSize()
     ) {
         BackgroundShapes()
+        Log.d("LOG_DUPA", "refreshHives".toString())
 
         Column {
             when (apiaryState) {
@@ -197,8 +205,9 @@ fun ApiaryLayout(
     )
 
     CircleTopBar(
-        circleText = (if (hives.isNotEmpty()) apiary.hivesCount else apiary.name.first()
-            .uppercase()).toString(),
+        circleText = "s",
+//        circleText = (if (hives.isNotEmpty()) apiary.hivesCount else apiary.name.first()
+//            .uppercase()).toString(),
         title = apiary.name,
         subtitle = if (apiary.lastOverview != null) "Ostatni przegląd: ${apiary.lastOverview}" else "Brak przeglądów",
         showSubtitle = hives.isNotEmpty(),
@@ -300,10 +309,10 @@ fun ApiaryLayout(
         }
     } else {
         EmptyList(
-            title = "Widok w trakcie budowy",
-            text = "Kliknij w przycisk i wróć do ekranu głównego.",
-            buttonTitle = "Dodaj pasiekę",
-            navigate = navToDashboard,
+            title = "Brak uli",
+            text = "Kliknij w przycisk i dodaj pierwszy ul.",
+            buttonTitle = "Dodaj ul",
+            navigate = { navToCreateHive(apiary.id) },
         )
     }
 
@@ -326,7 +335,9 @@ private fun DestinationsNavigator.navToEditApiary(apiaryModel: ApiaryModel) =
     navigate(CreateApiaryScreenDestination(apiaryModel))
 
 private fun DestinationsNavigator.navToQrScannerScreen() = navigate(QrScannerScreenDestination)
+
 fun DestinationsNavigator.navToApiariesScreen() = navigate(ApiariesScreenDestination)
+
 private fun DestinationsNavigator.navToHiveScreen(hiveId: String) =
     navigate(HiveScreenDestination(hiveId))
 

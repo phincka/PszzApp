@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pszzapp.data.model.DetailedOverviewModel
 import com.example.pszzapp.domain.usecase.hive.GetHiveByIdUseCase
-import com.example.pszzapp.domain.usecase.overview.GetDetailedOverviewByIdUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -14,7 +13,6 @@ import org.koin.android.annotation.KoinViewModel
 class FeedingScreenViewModel(
     id: String,
     private val getHiveByIdUseCase: GetHiveByIdUseCase,
-    private val getDetailedOverviewByIdUseCase: GetDetailedOverviewByIdUseCase
 ) : ViewModel() {
     private val _overviewState: MutableStateFlow<FeedingScreenState> = MutableStateFlow(
         FeedingScreenState.Loading
@@ -30,17 +28,7 @@ class FeedingScreenViewModel(
         _overviewState.value = FeedingScreenState.Loading
 
         viewModelScope.launch {
-            try {
-                val overview = getDetailedOverviewByIdUseCase(id)
-
-                if (overview != null) {
-                    _overviewState.value = FeedingScreenState.Success(overview)
-                } else {
-                    _overviewState.value = FeedingScreenState.Error("Failed: Nie znaleziono przeglądu o podanym ID")
-                }
-            } catch (e: Exception) {
-                _overviewState.value = FeedingScreenState.Error("Failed: ${e.message}")
-            }
+            _overviewState.value = FeedingScreenState.Error("Failed: Nie znaleziono przeglądu o podanym ID")
         }
     }
 }

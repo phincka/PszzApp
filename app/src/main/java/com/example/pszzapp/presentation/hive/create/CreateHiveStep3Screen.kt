@@ -1,7 +1,6 @@
 package com.example.pszzapp.presentation.hive.create
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -32,6 +31,7 @@ import com.example.pszzapp.presentation.auth.base.Button
 import com.example.pszzapp.presentation.components.TextError
 import com.example.pszzapp.presentation.components.TopBar
 import com.example.pszzapp.presentation.dashboard.BackgroundShapes
+import com.example.pszzapp.presentation.destinations.CreateHiveStep1ScreenDestination
 import com.example.pszzapp.presentation.destinations.HiveScreenDestination
 import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.example.pszzapp.ui.theme.AppTheme
@@ -40,7 +40,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import org.koin.androidx.compose.koinViewModel
 
-@SuppressLint("StateFlowValueCalledInComposition")
+@SuppressLint("StateFlowValueCalledInComposition", "UnrememberedGetBackStackEntry")
 @Destination
 @Composable
 fun CreateHiveStep3Screen(
@@ -54,7 +54,13 @@ fun CreateHiveStep3Screen(
     val createHiveState by viewModel.createHiveState.collectAsState()
 
     if (createHiveState is CreateHiveState.Redirect) {
-        navigator.navigate(HiveScreenDestination(id = (createHiveState as CreateHiveState.Redirect).hiveId))
+        navController.getBackStackEntry("apiary_screen/${(createHiveState as CreateHiveState.Redirect).apiaryId}").savedStateHandle["refresh"] = true
+        navController.getBackStackEntry("hive_screen/${(createHiveState as CreateHiveState.Redirect).hiveId}").savedStateHandle["refresh"] = true
+
+        navigator.navigate(HiveScreenDestination(id = (createHiveState as CreateHiveState.Redirect).hiveId)) {
+            popUpTo(CreateHiveStep1ScreenDestination.route) { inclusive = true }
+            launchSingleTop = true
+        }
     }
 
     CreateHiveStep3Layout(
@@ -79,8 +85,9 @@ private fun CreateHiveStep3Layout(
     onCreateHive: (HiveModel) -> Unit,
     onEditHive: (HiveModel) -> Unit,
 ) {
-    var hiveDataStep3 by remember { mutableStateOf(hiveData.copy(queenNote = "")) }
-    Log.d("LOG_H", hiveDataStep3.toString())
+    var hiveDataStep3: HiveModel by remember {
+        mutableStateOf(hiveData)
+    }
 
     BoxWithConstraints(
         modifier = Modifier

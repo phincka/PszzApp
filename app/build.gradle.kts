@@ -78,6 +78,10 @@ dependencies {
     // Dialogs
     implementation("io.github.vanpra.compose-material-dialogs:datetime:0.9.0")
 
+//    implementation("com.google.firebase:firebase-core:21.1.1")
+//    implementation("com.google.android.gms:play-services-auth:21.2.0")
+
+
     implementation("androidx.compose.ui:ui:1.6.8")
     implementation("androidx.compose.material:material:1.6.8")
     implementation("androidx.compose.ui:ui-tooling:1.6.8")

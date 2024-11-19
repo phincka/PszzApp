@@ -1,7 +1,7 @@
 package com.example.pszzapp.presentation.overview
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.BorderStroke
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,10 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,52 +34,54 @@ import androidx.navigation.NavController
 import com.example.pszzapp.R
 import com.example.pszzapp.components.modalDialog.ModalDialog
 import com.example.pszzapp.data.model.DetailedOverviewModel
-import com.example.pszzapp.data.model.HiveModel
 import com.example.pszzapp.data.model.OverviewModel
+import com.example.pszzapp.data.model.toDetailedOverviewModel
 import com.example.pszzapp.data.util.DropdownMenuItemData
 import com.example.pszzapp.presentation.components.LoadingDialog
 import com.example.pszzapp.presentation.components.TextError
 import com.example.pszzapp.presentation.components.TopBar
 import com.example.pszzapp.presentation.dashboard.BackgroundShapes
-import com.example.pszzapp.presentation.destinations.CreateHiveStep1ScreenDestination
-import com.example.pszzapp.presentation.destinations.CreateHiveStep1ScreenDestination.invoke
 import com.example.pszzapp.presentation.destinations.CreateOverviewStep1ScreenDestination
 import com.example.pszzapp.presentation.main.bottomBarPadding
-import com.example.pszzapp.presentation.overview.create.OverviewConstants
 import com.example.pszzapp.ui.theme.AppTheme
 import com.example.pszzapp.ui.theme.Typography
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import java.time.format.DateTimeFormatter
 
-@SuppressLint("StateFlowValueCalledInComposition")
+@SuppressLint("StateFlowValueCalledInComposition", "UnrememberedGetBackStackEntry")
 @Destination
 @Composable
 fun OverviewScreen(
     overviewId: String,
-    navigator: DestinationsNavigator,
+    destinationsNavigator: DestinationsNavigator,
     resultNavigator: ResultBackNavigator<Boolean>,
     navController: NavController,
-    overviewViewModel: OverviewViewModel = koinViewModel(parameters = { parametersOf(overviewId) })
+    viewModel: OverviewViewModel = koinViewModel(parameters = { parametersOf(overviewId) })
 ) {
-    val overviewState = overviewViewModel.overviewState.collectAsState().value
+    val overviewState = viewModel.overviewState.collectAsState().value
+    val removeOverviewState = viewModel.removeOverviewState.collectAsState().value
 
     var isModalActive by remember { mutableStateOf(false) }
 
     when (overviewState) {
         is OverviewState.Success -> {
+            if (removeOverviewState is RemoveOverviewState.Success) {
+                navController.getBackStackEntry("hive_Screen/${overviewState.overview.hiveId}").savedStateHandle["refresh"] = true
+                destinationsNavigator.navigateUp()
+            }
+
             val menuItems = listOf(
                 DropdownMenuItemData(
                     icon = Icons.Outlined.Edit,
                     text = "Edytuj przegląd",
-                    onClick = { navigator.navToEditOverview(
+                    onClick = { destinationsNavigator.navToEditOverview(
                         apiaryId = overviewState.overview.apiaryId,
                         hiveId = overviewState.overview.hiveId,
-                        overviewModel = null,
+                        overviewModel = overviewState.overview,
                     ) }
                 ),
                 DropdownMenuItemData(
@@ -95,14 +93,15 @@ fun OverviewScreen(
                 ),
             )
 
+            Log.d("LOG_H", overviewState.overview.strength.toString())
             OverviewLayout(
                 navController = navController,
                 resultNavigator = resultNavigator,
                 menuItems = menuItems,
                 isModalActive = isModalActive,
                 setModal = { isModalActive = it },
-                removeOverview = {  },
-                overview = overviewState.overview
+                removeOverview = { viewModel.removeOverview(overviewId) },
+                detailedOverview = overviewState.overview.toDetailedOverviewModel(),
             )
         }
 
@@ -120,7 +119,7 @@ private fun OverviewLayout(
     isModalActive: Boolean,
     setModal: (Boolean) -> Unit,
     removeOverview: (String) -> Unit,
-    overview: DetailedOverviewModel,
+    detailedOverview: DetailedOverviewModel,
 ) {
     var isDropdownMenuVisible by remember { mutableStateOf(false) }
 
@@ -135,10 +134,10 @@ private fun OverviewLayout(
             TopBar(
                 backNavigation = { resultNavigator.navigateBack() },
                 title = "Przegląd",
-                warningInfo = overview.warningInfo,
-                goodInfo = overview.goodInfo,
+                warningInfo = detailedOverview.warningInfo,
+                goodInfo = detailedOverview.goodInfo,
                 columnInfo = true,
-                subtitle = overview.overviewDate?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                subtitle = detailedOverview.overviewDate?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
                 menuItems = menuItems,
                 onSettingsClick = { isDropdownMenuVisible = true },
                 isDropdownMenuVisible = isDropdownMenuVisible,
@@ -148,7 +147,7 @@ private fun OverviewLayout(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                overview.overviewTiles.forEach { tile ->
+                detailedOverview.overviewTiles.forEach { tile ->
                     Row(
                         modifier = Modifier
                             .graphicsLayer {
@@ -216,7 +215,7 @@ private fun OverviewLayout(
         icon = Icons.Filled.Warning,
         isModalActive = isModalActive,
         onDismissRequest = { setModal(false) },
-        onConfirmation = { removeOverview(overview.id) },
+        onConfirmation = { removeOverview(detailedOverview.id) },
     )
 }
 

@@ -70,7 +70,7 @@ fun DashboardScreen(
     viewModel: DashboardViewModel = koinViewModel(),
     navController: NavController,
 ) {
-    Log.d("LOG_DASZ", "DASHBOARD")
+    Log.d("LOG_DASZ", ApiariesScreenDestination.route)
     val lastOverviewsState = viewModel.lastOverviewsState.collectAsState().value
 
     val buttonTilesNavigation = listOf(

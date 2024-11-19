@@ -22,7 +22,7 @@ data class HiveModel(
     val queenNote: String,
 ) : Parcelable {
     constructor() : this(
-        "", "", "", "", 0, 0, 0, "", 0, 0, null, null, "",
+        "", "", "", "", 2, 0, 0, "", 0, 0, null, null, "",
     )
 
     fun doesMatchSearchQuery(query: String): Boolean {

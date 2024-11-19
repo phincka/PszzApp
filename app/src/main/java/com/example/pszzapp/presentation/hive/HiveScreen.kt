@@ -1,6 +1,7 @@
 package com.example.pszzapp.presentation.hive
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -71,6 +73,15 @@ fun HiveScreen(
     navController: NavController,
     viewModel: HiveViewModel = koinViewModel(parameters = { parametersOf(id) }),
 ) {
+    val backStackEntry = navController.currentBackStackEntry
+    val refresh = backStackEntry?.savedStateHandle?.get<Boolean>("refresh")
+
+    LaunchedEffect(refresh) {
+        if (refresh == true) {
+            viewModel.refreshHive(id)
+        }
+    }
+
     val hiveState = viewModel.hiveState.collectAsState().value
     val overviewsState = viewModel.overviewsState.collectAsState().value
     val lastOverviewIdState = viewModel.lastOverviewIdState.collectAsState().value

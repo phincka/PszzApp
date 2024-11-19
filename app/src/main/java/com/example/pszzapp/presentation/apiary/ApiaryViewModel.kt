@@ -37,7 +37,9 @@ class ApiaryViewModel(
         getHivesByApiaryId(id)
     }
 
-    private fun getHivesByApiaryId(id: String) {
+    fun getHivesByApiaryId(id: String) {
+        _apiaryState.value = ApiaryState.Loading
+
         viewModelScope.launch {
             try {
                 val apiary = getApiaryByIdUseCase(id)

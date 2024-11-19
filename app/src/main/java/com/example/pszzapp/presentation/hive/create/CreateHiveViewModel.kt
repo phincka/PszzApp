@@ -37,6 +37,6 @@ sealed class CreateHiveState {
     data object None : CreateHiveState()
     data object Loading : CreateHiveState()
     data object Success : CreateHiveState()
-    data class Redirect(val hiveId: String) : CreateHiveState()
+    data class Redirect(val hiveId: String, val apiaryId: String) : CreateHiveState()
     data class Error(val message: String) : CreateHiveState()
 }

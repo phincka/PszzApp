@@ -34,6 +34,7 @@ import com.example.pszzapp.presentation.components.LoadingDialog
 import com.example.pszzapp.presentation.components.TextError
 import com.example.pszzapp.presentation.components.TopBar
 import com.example.pszzapp.presentation.dashboard.BackgroundShapes
+import com.example.pszzapp.presentation.destinations.CreateOverviewStep1ScreenDestination
 import com.example.pszzapp.presentation.destinations.OverviewScreenDestination
 import com.example.pszzapp.presentation.hive.create.OptionsState
 import com.example.pszzapp.presentation.hive.create.StepsBelt
@@ -47,33 +48,42 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import org.koin.androidx.compose.koinViewModel
 
-@SuppressLint("StateFlowValueCalledInComposition")
+@SuppressLint("StateFlowValueCalledInComposition", "UnrememberedGetBackStackEntry")
 @Destination
 @Composable
 fun CreateOverviewStep3Screen(
+    isEditing: Boolean = false,
     resultNavigator: ResultBackNavigator<Boolean>,
     navController: NavController,
     navigator: DestinationsNavigator,
     viewModel: CreateOverviewViewModel = koinViewModel(),
-    overviewData: OverviewModel
+    overviewData: OverviewModel,
 ) {
-    val createOverviewState = viewModel.createOverviewState.collectAsState().value
-
-    when (createOverviewState) {
+    when (val createOverviewState = viewModel.createOverviewState.collectAsState().value) {
         is CreateOverviewState.Loading -> LoadingDialog()
 
         is CreateOverviewState.Success -> CreateOverviewLayout(
-            viewModel = viewModel,
+            isEditing = isEditing,
             navController = navController,
             resultNavigator = resultNavigator,
             createOverviewState = createOverviewState,
             onFormComplete = {
-                viewModel.createOverview(it)
+                if (isEditing) viewModel.editOverview(it) else viewModel.createOverview(it)
             },
             overviewData = overviewData,
         )
 
-        is CreateOverviewState.Redirect -> navigator.navigate(OverviewScreenDestination(overviewId = createOverviewState.overviewId))
+        is CreateOverviewState.Redirect -> {
+            navController.getBackStackEntry("hive_Screen/${overviewData.hiveId}").savedStateHandle["refresh"] = true
+
+            navigator.navigate(
+                OverviewScreenDestination(
+                    overviewId = createOverviewState.overviewId
+                )
+            ) {
+                popUpTo(CreateOverviewStep1ScreenDestination.route) { inclusive = true }
+            }
+        }
 
         is CreateOverviewState.Error -> TextError(createOverviewState.message)
     }
@@ -82,7 +92,7 @@ fun CreateOverviewStep3Screen(
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 private fun CreateOverviewLayout(
-    viewModel: CreateOverviewViewModel,
+    isEditing: Boolean = false,
     resultNavigator: ResultBackNavigator<Boolean>,
     navController: NavController,
     createOverviewState: CreateOverviewState,
@@ -93,8 +103,16 @@ private fun CreateOverviewLayout(
         mutableStateOf(overviewData)
     }
 
-    var foodAmount by rememberOptionsState(OverviewConstants.foodAmount)
-    var workFrame by rememberOptionsState(OverviewConstants.workFrame)
+    var foodAmount by rememberOptionsState(
+        options = OverviewConstants.foodAmount,
+        selectedOption = overviewDataStep3.foodAmount,
+        changed = isEditing,
+    )
+    var workFrame by rememberOptionsState(
+        options = OverviewConstants.workFrame,
+        selectedOption = overviewDataStep3.workFrame,
+        changed = isEditing,
+    )
     val workFrameDateState = rememberMaterialDialogState()
     val overviewDateState = rememberMaterialDialogState()
 
@@ -113,7 +131,7 @@ private fun CreateOverviewLayout(
         ) {
             TopBar(
                 backNavigation = { resultNavigator.navigateBack() },
-                title = "Dodaj przegląd",
+                title = if (isEditing) "Edytuj przegląd" else "Dodaj przegląd",
             )
 
             StepsBelt(maxSteps = 3, currentStep = 3)

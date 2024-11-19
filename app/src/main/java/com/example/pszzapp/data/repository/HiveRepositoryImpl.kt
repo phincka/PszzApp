@@ -35,7 +35,7 @@ class HiveRepositoryImpl(
         suspendCoroutine { continuation ->
             val hivesList = mutableListOf<HiveModel>()
 
-            firebaseAuth.currentUser?.let { currentUser ->
+            firebaseAuth.currentUser?.let {
                 firebaseFireStore
                     .collection("hives")
                     .whereEqualTo("apiaryId", id)
@@ -46,23 +46,11 @@ class HiveRepositoryImpl(
                             val apiaryData = document.data
 
                             apiaryData?.let { data ->
-                                val hive = HiveModel(
-                                    id = document.id,
-                                    uid = currentUser.uid,
-                                    apiaryId = data["apiaryId"] as? String ?: "",
-                                    name = data["name"] as? String ?: "",
-                                    familyType = (data["familyType"] as? Number)?.toInt() ?: 0,
-                                    hiveType = (data["hiveType"] as? Number)?.toInt() ?: 0,
-                                    breed = (data["breed"] as? Number)?.toInt() ?: 0,
-                                    line = data["line"] as? String ?: "",
-                                    state = (data["state"] as? Number)?.toInt() ?: 0,
-                                    queenYear = (data["queenYear"] as? Number)?.toInt() ?: 0,
-                                    queenAddedDate = data["queenAddedDate"] as? LocalDate
-                                        ?: LocalDate.now(),
-                                    hiveCreatedDate = data["hiveCreatedDate"] as? LocalDate
-                                        ?: LocalDate.now(),
-                                    queenNote = data["queenNote"] as? String ?: "",
+                                val hive = data.toHiveModel(
+                                    documentId = document.id,
+                                    currentUserUid = it.uid,
                                 )
+
                                 hivesList.add(hive)
                             }
                         }
@@ -86,25 +74,10 @@ class HiveRepositoryImpl(
                             val hiveData = documentSnapshot.data
 
                             hiveData?.let { data ->
-                                val hive = HiveModel(
-                                    id = id,
-                                    uid = data["uid"] as? String ?: "",
-                                    apiaryId = data["apiaryId"] as? String ?: "",
-                                    name = data["name"] as? String ?: "",
-                                    familyType = (data["familyType"] as? Number)?.toInt() ?: 0,
-                                    hiveType = (data["hiveType"] as? Number)?.toInt() ?: 0,
-                                    breed = (data["breed"] as? Number)?.toInt() ?: 0,
-                                    line = data["line"] as? String ?: "",
-                                    state = (data["state"] as? Number)?.toInt() ?: 0,
-                                    queenYear = (data["queenYear"] as? Number)?.toInt() ?: 0,
-                                    queenAddedDate = data["queenAddedDate"] as? LocalDate
-                                        ?: LocalDate.now(),
-                                    hiveCreatedDate = data["hiveCreatedDate"] as? LocalDate
-                                        ?: LocalDate.now(),
-                                    queenNote = data["queenNote"] as? String ?: ""
+                                val hive = data.toHiveModel(
+                                    documentId = id,
+                                    currentUserUid = it.uid,
                                 )
-
-                                Log.d("LOG_UL", hive.hiveType.toString())
 
                                 continuation.resume(hive)
                             } ?: continuation.resume(null)
@@ -141,7 +114,7 @@ class HiveRepositoryImpl(
                 )
 
                 docRef.set(hive)
-                continuation.resume(CreateHiveState.Redirect(hiveId))
+                continuation.resume(CreateHiveState.Redirect(hiveId, apiaryId = hive.apiaryId))
             } else {
                 continuation.resume(CreateHiveState.Error(context.getString(R.string.hive_state_no_user)))
             }
@@ -169,7 +142,7 @@ class HiveRepositoryImpl(
                             ),
                         )
 
-                    continuation.resume(CreateHiveState.Redirect(hiveId = hiveModel.id))
+                    continuation.resume(CreateHiveState.Redirect(hiveId = hiveModel.id, hiveModel.apiaryId))
                 }
             } else {
                 continuation.resume(CreateHiveState.Error("hive_state_no_user"))
@@ -213,4 +186,22 @@ class HiveRepositoryImpl(
                 continuation.resume(RemoveHiveState.Error("hive_state_no_user"))
             }
         }
+}
+
+private fun Map<String, Any>.toHiveModel(documentId: String, currentUserUid: String): HiveModel {
+    return HiveModel(
+        id = documentId,
+        uid = currentUserUid,
+        apiaryId = this["apiaryId"] as? String ?: "",
+        name = this["name"] as? String ?: "",
+        familyType = this["familyType"].toIntOrDefault(0),
+        hiveType = this["hiveType"].toIntOrDefault(0),
+        breed = this["breed"].toIntOrDefault(0),
+        line = this["line"] as? String ?: "",
+        state = this["state"].toIntOrDefault(0),
+        queenYear = this["queenYear"].toIntOrDefault(0),
+        queenAddedDate = getLocalDateFromFirestore(this, "queenAddedDate") ?: LocalDate.now(),
+        hiveCreatedDate = getLocalDateFromFirestore(this, "hiveCreatedDate") ?: LocalDate.now(),
+        queenNote = this["queenNote"] as? String ?: ""
+    )
 }

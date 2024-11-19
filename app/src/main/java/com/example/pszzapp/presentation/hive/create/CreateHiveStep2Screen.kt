@@ -76,24 +76,27 @@ private fun CreateHiveStep2Layout(
     navigator: DestinationsNavigator,
     createHiveState: CreateHiveState
 ) {
+    var hiveDataStep2: HiveModel by remember {
+        mutableStateOf(hiveData)
+    }
+
     val queenAddedDateState = rememberMaterialDialogState()
 
-    var breedOptions by rememberOptionsState(CreateHiveConstants.breed)
-    var queenYearTypeOptions by rememberOptionsState(CreateHiveConstants.queenYear)
-    var stateTypeOptions by rememberOptionsState(CreateHiveConstants.state)
-
-    var hiveDataStep2 by remember {
-        mutableStateOf(
-            hiveData.copy(
-                breed = 0,
-                line = "",
-                state = 0,
-                queenYear = 0,
-                queenAddedDate = LocalDate.now(),
-                queenNote = ""
-            )
-        )
-    }
+    var breedOptions by rememberOptionsState(
+        options = CreateHiveConstants.breed,
+        selectedOption = hiveDataStep2.breed,
+        changed = isEditing,
+    )
+    var queenYearTypeOptions by rememberOptionsState(
+        options = CreateHiveConstants.queenYear,
+        selectedOption = hiveDataStep2.queenYear,
+        changed = isEditing,
+    )
+    var stateTypeOptions by rememberOptionsState(
+        options = CreateHiveConstants.state,
+        selectedOption = hiveDataStep2.state,
+        changed = isEditing,
+    )
 
     BoxWithConstraints(
         modifier = Modifier
@@ -115,7 +118,7 @@ private fun CreateHiveStep2Layout(
             StepsBelt(maxSteps = 3, currentStep = 2)
 
             CreateHiveForm(
-                hiveData = hiveDataStep2,
+                hiveData = hiveData,
                 breedOptions = breedOptions,
                 queenYearTypeOptions = queenYearTypeOptions,
                 stateTypeOptions = stateTypeOptions,

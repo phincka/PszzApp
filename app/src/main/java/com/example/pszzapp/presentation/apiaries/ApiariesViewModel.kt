@@ -1,6 +1,5 @@
 package com.example.pszzapp.presentation.apiaries
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pszzapp.data.model.ApiaryModel
@@ -21,7 +20,7 @@ class ApiariesViewModel(
         getApiaries()
     }
 
-    private fun getApiaries() {
+    fun getApiaries() {
         _apiariesState.value = ApiariesState.Loading
 
         viewModelScope.launch {
@@ -29,8 +28,6 @@ class ApiariesViewModel(
                 val apiaries = getApiariesUseCase()
                 _apiariesState.value = ApiariesState.Success(apiaries)
             } catch (e: Exception) {
-                Log.d("LOG_H", e.message.toString())
-
                 _apiariesState.value = ApiariesState.Error("Failed: ${e.message}")
             }
         }

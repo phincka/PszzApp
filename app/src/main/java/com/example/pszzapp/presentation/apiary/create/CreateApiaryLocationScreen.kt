@@ -32,6 +32,7 @@ import com.example.pszzapp.presentation.components.TextError
 import com.example.pszzapp.presentation.components.TopBar
 import com.example.pszzapp.presentation.dashboard.BackgroundShapes
 import com.example.pszzapp.presentation.destinations.ApiaryScreenDestination
+import com.example.pszzapp.presentation.destinations.CreateApiaryScreenDestination
 import com.example.pszzapp.presentation.hive.create.StepsBelt
 import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.example.pszzapp.ui.theme.AppTheme
@@ -40,6 +41,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import org.koin.androidx.compose.koinViewModel
 
+@SuppressLint("UnrememberedGetBackStackEntry")
 @Destination
 @Composable
 fun CreateApiaryLocationScreen(
@@ -52,11 +54,17 @@ fun CreateApiaryLocationScreen(
 ) {
     val createApiaryState = viewModel.createApiaryState.collectAsState().value
 
-    if (createApiaryState is CreateApiaryState.Redirect) navigator.navigate(
-        ApiaryScreenDestination(
-            id = createApiaryState.apiaryId
-        )
-    )
+    if (createApiaryState is CreateApiaryState.Redirect) {
+        if (navController.isRouteInBackStack("apiaries_screen")) {
+            navController.getBackStackEntry("apiaries_screen").savedStateHandle["refresh"] = true
+        }
+
+        navigator.navigate(
+            ApiaryScreenDestination(id = createApiaryState.apiaryId)
+        ) {
+            popUpTo(CreateApiaryScreenDestination.route) { inclusive = true }
+        }
+    }
 
     CreateApiaryLocationLayout(
         isEditing = isEditing,
@@ -178,5 +186,14 @@ private fun CreateApiaryLocationLayout(
                 typeOptions = typeOptions.copy(expanded = false)
             },
         )
+    }
+}
+
+fun NavController.isRouteInBackStack(route: String): Boolean {
+    return try {
+        this.getBackStackEntry(route)
+        true
+    } catch (e: IllegalArgumentException) {
+        false
     }
 }

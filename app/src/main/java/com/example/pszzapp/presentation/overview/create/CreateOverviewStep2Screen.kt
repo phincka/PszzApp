@@ -50,23 +50,28 @@ import org.koin.androidx.compose.koinViewModel
 @Destination
 @Composable
 fun CreateOverviewStep2Screen(
+    isEditing: Boolean = false,
     resultNavigator: ResultBackNavigator<Boolean>,
     navController: NavController,
     navigator: DestinationsNavigator,
     viewModel: CreateOverviewViewModel = koinViewModel(),
     overviewData: OverviewModel,
 ) {
-    val createOverviewState = viewModel.createOverviewState.collectAsState().value
-
-    when (createOverviewState) {
+    when (val createOverviewState = viewModel.createOverviewState.collectAsState().value) {
         is CreateOverviewState.Loading -> LoadingDialog()
 
         is CreateOverviewState.Success -> CreateOverviewLayout(
+            isEditing = isEditing,
             navController = navController,
             resultNavigator = resultNavigator,
             createOverviewState = createOverviewState,
             onFormComplete = {
-                navigator.navigate(CreateOverviewStep3ScreenDestination(overviewData = it))
+                navigator.navigate(
+                    CreateOverviewStep3ScreenDestination(
+                        isEditing = isEditing,
+                        overviewData = it
+                    )
+                )
             },
             overviewData = overviewData,
         )
@@ -79,6 +84,7 @@ fun CreateOverviewStep2Screen(
 
 @Composable
 private fun CreateOverviewLayout(
+    isEditing: Boolean = false,
     resultNavigator: ResultBackNavigator<Boolean>,
     navController: NavController,
     createOverviewState: CreateOverviewState,
@@ -89,12 +95,36 @@ private fun CreateOverviewLayout(
         mutableStateOf(overviewData)
     }
 
-    var partitionGrid by rememberOptionsState(OverviewConstants.partitionGrid)
-    var insulator by rememberOptionsState(OverviewConstants.insulator)
-    var pollenCatcher by rememberOptionsState(OverviewConstants.pollenCatcher)
-    var propolisCatcher by rememberOptionsState(OverviewConstants.propolisCatcher)
-    var honeyWarehouse by rememberOptionsState(OverviewConstants.honeyWarehouse)
-    var honeyWarehouseNumbers by rememberOptionsState(OverviewConstants.numbers)
+    var partitionGrid by rememberOptionsState(
+        options = OverviewConstants.partitionGrid,
+        selectedOption = overviewDataStep2.partitionGrid,
+        changed = isEditing,
+    )
+    var insulator by rememberOptionsState(
+        options = OverviewConstants.insulator,
+        selectedOption = overviewDataStep2.insulator,
+        changed = isEditing,
+    )
+    var pollenCatcher by rememberOptionsState(
+        options = OverviewConstants.pollenCatcher,
+        selectedOption = overviewDataStep2.pollenCatcher,
+        changed = isEditing,
+    )
+    var propolisCatcher by rememberOptionsState(
+        options = OverviewConstants.propolisCatcher,
+        selectedOption = overviewDataStep2.propolisCatcher,
+        changed = isEditing,
+    )
+    var honeyWarehouse by rememberOptionsState(
+        options = OverviewConstants.honeyWarehouse,
+        selectedOption = overviewDataStep2.honeyWarehouse,
+        changed = isEditing,
+    )
+    var honeyWarehouseNumbers by rememberOptionsState(
+        options = OverviewConstants.numbers,
+        selectedOption = overviewDataStep2.honeyWarehouseNumbers,
+        changed = isEditing,
+    )
 
     BoxWithConstraints(
         modifier = Modifier
@@ -110,7 +140,7 @@ private fun CreateOverviewLayout(
         ) {
             TopBar(
                 backNavigation = { resultNavigator.navigateBack() },
-                title = "Dodaj przegląd",
+                title = if (isEditing) "Edytuj przegląd" else "Dodaj przegląd",
             )
 
             StepsBelt(maxSteps = 3, currentStep = 2)

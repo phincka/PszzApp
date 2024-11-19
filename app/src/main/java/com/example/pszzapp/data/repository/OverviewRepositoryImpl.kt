@@ -2,14 +2,11 @@ package com.example.pszzapp.data.repository
 
 import android.content.Context
 import com.example.pszzapp.R
-import com.example.pszzapp.data.model.DetailedOverviewModel
 import com.example.pszzapp.data.model.ListItemOverviewModel
-import com.example.pszzapp.data.model.OverviewCell
 import com.example.pszzapp.data.model.OverviewModel
-import com.example.pszzapp.data.model.OverviewTile
 import com.example.pszzapp.domain.repository.OverviewRepository
+import com.example.pszzapp.presentation.overview.RemoveOverviewState
 import com.example.pszzapp.presentation.overview.create.CreateOverviewState
-import com.example.pszzapp.presentation.overview.create.OverviewConstants
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -120,96 +117,6 @@ class OverviewRepositoryImpl(
             } ?: continuation.resume(null)
         }
 
-    override suspend fun getDetailedOverviewById(overviewId: String): DetailedOverviewModel? =
-        suspendCoroutine { continuation ->
-            firebaseAuth.currentUser?.let {
-                firebaseFireStore
-                    .collection("overviews")
-                    .document(overviewId)
-                    .get()
-                    .addOnSuccessListener { documentSnapshot ->
-                        val overviewData = documentSnapshot.data
-
-                        overviewData?.let {
-                            val overview = overviewData.toOverviewModel()
-
-                            val overviewTiles = listOf(
-                                OverviewTile(
-                                    title = "Informacje o rodzinie",
-                                    overviewItem = listOf(
-                                        OverviewCell(
-                                            key = "Siła",
-                                            value = OverviewConstants.strength[overview.strength],
-                                        ),
-                                        OverviewCell(
-                                            key = "Nastrój",
-                                            value = OverviewConstants.mood[overview.mood],
-                                        ),
-                                        OverviewCell(
-                                            key = "Czerw",
-                                            value = OverviewConstants.beeMaggots[overview.beeMaggots],
-                                        ),
-                                    )
-                                ),
-                                OverviewTile(
-                                    title = "Wyposażenie",
-                                    overviewItem = listOf(
-                                        OverviewCell(
-                                            key = "Podkarmiaczka",
-                                            value = OverviewConstants.beeMaggots[0],
-                                        ),
-                                        OverviewCell(
-                                            key = "Izolator",
-                                            value = OverviewConstants.insulator[overview.insulator],
-                                        ),
-                                        OverviewCell(
-                                            key = "Poławiacz pyłku",
-                                            value = OverviewConstants.pollenCatcher[overview.pollenCatcher],
-                                        ),
-                                        OverviewCell(
-                                            key = "Poławiacz Propolisu",
-                                            value = OverviewConstants.propolisCatcher[overview.propolisCatcher],
-                                        ),
-                                    )
-                                ),
-                                OverviewTile(
-                                    title = "Informacje o rodzinie",
-                                    overviewItem = listOf(
-                                        OverviewCell(
-                                            key = "Siła",
-                                            value = OverviewConstants.strength[overview.strength],
-                                        ),
-                                        OverviewCell(
-                                            key = "Nastrój",
-                                            value = OverviewConstants.mood[overview.mood],
-                                        ),
-                                        OverviewCell(
-                                            key = "Czerw",
-                                            value = OverviewConstants.beeMaggots[overview.beeMaggots],
-                                        ),
-                                    )
-                                ),
-                            )
-
-                            val detailedOverview = DetailedOverviewModel(
-                                id = overview.id,
-                                apiaryId = overview.apiaryId,
-                                hiveId = overview.hiveId,
-                                warningInfo = if (overview.cellType == 2) "Stan rojowy" else null,
-                                goodInfo = if (overview.strength == 2) "Rodzina jest zdrowa i silna" else null,
-                                overviewDate = overview.overviewDate,
-                                overviewTiles = overviewTiles
-                            )
-
-                            continuation.resume(detailedOverview)
-                        }
-                    }
-                    .addOnFailureListener { exception ->
-                        continuation.resumeWithException(exception)
-                    }
-            } ?: continuation.resume(null)
-        }
-
     override suspend fun createOverview(overviewModel: OverviewModel): CreateOverviewState =
         suspendCancellableCoroutine { continuation ->
             if (firebaseAuth.currentUser != null) {
@@ -247,6 +154,69 @@ class OverviewRepositoryImpl(
                 continuation.resume(CreateOverviewState.Error(context.getString(R.string.hive_state_no_user)))
             }
         }
+
+    override suspend fun editOverview(overviewModel: OverviewModel): CreateOverviewState =
+        suspendCancellableCoroutine { continuation ->
+            if (firebaseAuth.currentUser != null) {
+                firebaseAuth.currentUser?.let {
+                    firebaseFireStore
+                        .collection("overviews")
+                        .document(overviewModel.id)
+                        .update(
+                            mapOf(
+                                "strength" to overviewModel.strength,
+                                "mood" to overviewModel.mood,
+                                "beeMaggots" to overviewModel.beeMaggots,
+                                "cellType" to overviewModel.cellType,
+                                "insulator" to overviewModel.partitionGrid,
+                                "insulator" to overviewModel.insulator,
+                                "pollenCatcher" to overviewModel.pollenCatcher,
+                                "propolisCatcher" to overviewModel.propolisCatcher,
+                                "honeyWarehouse" to overviewModel.honeyWarehouse,
+                                "honeyWarehouseNumbers" to overviewModel.honeyWarehouseNumbers,
+                                "foodAmount" to overviewModel.foodAmount,
+                                "workFrame" to overviewModel.workFrame,
+                                "workFrameDate" to overviewModel.workFrameDate,
+                                "overviewDate" to overviewModel.overviewDate,
+                                "workFrameDate" to overviewModel.workFrameDate,
+                            ),
+                        )
+
+                    continuation.resume(CreateOverviewState.Redirect(overviewId = overviewModel.id))
+                }
+            } else {
+                continuation.resume(CreateOverviewState.Error("hive_state_no_user"))
+            }
+        }
+
+    override suspend fun removeOverview(
+        overviewId: String,
+    ): RemoveOverviewState =
+        suspendCancellableCoroutine { continuation ->
+            if (firebaseAuth.currentUser != null) {
+                firebaseAuth.currentUser?.let {
+                    firebaseFireStore
+                        .collection("overviews")
+                        .whereEqualTo("id", overviewId)
+                        .get()
+                        .addOnSuccessListener { documents ->
+                            for (document in documents) {
+                                document.reference.delete()
+                                    .addOnFailureListener { e ->
+                                        continuation.resume(RemoveOverviewState.Error("Error deleting document: $e"))
+                                    }
+                            }
+
+                            continuation.resume(RemoveOverviewState.Success)
+                        }
+                        .addOnFailureListener {
+                            continuation.resume(RemoveOverviewState.Error("exception"))
+                        }
+                }
+            } else {
+                continuation.resume(RemoveOverviewState.Error("hive_state_no_user"))
+            }
+        }
 }
 
 
@@ -256,18 +226,18 @@ private fun Map<String, Any>.toOverviewModel(): OverviewModel {
         uid = this["uid"] as? String ?: "",
         apiaryId = this["apiaryId"] as? String ?: "",
         hiveId = this["hiveId"] as? String ?: "",
-        strength = this["strength"] as? Int ?: 0,
-        mood = this["mood"] as? Int ?: 0,
-        beeMaggots = this["beeMaggots"] as? Int ?: 0,
-        cellType = this["cellType"] as? Int ?: 0,
-        partitionGrid = this["partitionGrid"] as? Int ?: 0,
-        insulator = this["insulator"] as? Int ?: 0,
-        pollenCatcher = this["pollenCatcher"] as? Int ?: 0,
-        propolisCatcher = this["propolisCatcher"] as? Int ?: 0,
-        honeyWarehouse = this["honeyWarehouse"] as? Int ?: 0,
-        honeyWarehouseNumbers = this["honeyWarehouseNumbers"] as? Int ?: 0,
-        foodAmount = this["foodAmount"] as? Int ?: 0,
-        workFrame = this["workFrame"] as? Int ?: 0,
+        strength = this["strength"].toIntOrDefault(0),
+        mood = this["mood"].toIntOrDefault(0),
+        beeMaggots = this["beeMaggots"].toIntOrDefault(0),
+        cellType = this["cellType"].toIntOrDefault(0),
+        partitionGrid = this["partitionGrid"].toIntOrDefault(0),
+        insulator = this["insulator"].toIntOrDefault(0),
+        pollenCatcher = this["pollenCatcher"].toIntOrDefault(0),
+        propolisCatcher = this["propolisCatcher"].toIntOrDefault(0),
+        honeyWarehouse = this["honeyWarehouse"].toIntOrDefault(0),
+        honeyWarehouseNumbers = this["honeyWarehouseNumbers"].toIntOrDefault(0),
+        foodAmount = this["foodAmount"].toIntOrDefault(0),
+        workFrame = this["workFrame"].toIntOrDefault(0),
         workFrameDate = getLocalDateFromFirestore(this, "workFrameDate"),
         overviewDate = getLocalDateFromFirestore(this, "overviewDate"),
         note = this["note"] as? String ?: ""
@@ -291,5 +261,14 @@ fun getLocalDateFromFirestore(data: Map<String, Any>, key: String): LocalDate {
         LocalDate.of(year, month, day)
     } else {
         LocalDate.now()
+    }
+}
+
+fun Any?.toIntOrDefault(default: Int): Int {
+    return when (this) {
+        is Int -> this
+        is Long -> this.toInt()
+        is Double -> this.toInt()
+        else -> default
     }
 }

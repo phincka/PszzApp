@@ -1,6 +1,5 @@
 package com.example.pszzapp.presentation.hive
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pszzapp.data.model.HiveModel
@@ -9,7 +8,6 @@ import com.example.pszzapp.domain.usecase.hive.GetHiveByIdUseCase
 import com.example.pszzapp.domain.usecase.hive.RemoveHiveUseCase
 import com.example.pszzapp.domain.usecase.overview.GetLastOverviewIdUseCase
 import com.example.pszzapp.domain.usecase.overview.GetOverviewsByHiveIdUseCase
-import com.example.pszzapp.presentation.apiary.RemoveApiaryState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -37,6 +35,11 @@ class HiveViewModel(
     val removeHiveState: StateFlow<RemoveHiveState> = _removeHiveState
 
     init {
+        getHiveById(id)
+        getLastOverviewId(id)
+    }
+
+    fun refreshHive(id: String) {
         getHiveById(id)
         getLastOverviewId(id)
     }
@@ -72,14 +75,11 @@ class HiveViewModel(
     }
 
     fun geOverviewsByHiveId(hiveId: String) {
-        Log.d("LOG_H", "ŁADOWANIE przeglądów!")
         _overviewsState.value = OverviewsState.Loading
 
         viewModelScope.launch {
             try {
                 val overviews = getOverviewsByHiveIdUseCase(id = hiveId)
-                Log.d("LOG_H", "ZAładowano przeglądów!")
-
                 _overviewsState.value = OverviewsState.Success(overviews)
             } catch (e: Exception) {
                 _overviewsState.value = OverviewsState.Error("Failed: ${e.message}")

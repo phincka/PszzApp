@@ -25,7 +25,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,7 +52,9 @@ import com.example.pszzapp.presentation.components.formattedDate
 import com.example.pszzapp.presentation.dashboard.BackgroundShapes
 import com.example.pszzapp.presentation.destinations.ApiaryScreenDestination
 import com.example.pszzapp.presentation.destinations.CreateApiaryLocationScreenDestination
+import com.example.pszzapp.presentation.hive.create.OptionsState
 import com.example.pszzapp.presentation.hive.create.StepsBelt
+import com.example.pszzapp.presentation.hive.create.rememberOptionsState
 import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.example.pszzapp.ui.theme.AppTheme
 import com.example.pszzapp.ui.theme.Typography
@@ -99,24 +100,14 @@ private fun CreateApiaryLayout(
     createApiaryState: CreateApiaryState,
     apiaryModel: ApiaryModel? = null,
 ) {
-    var apiaryData by remember { mutableStateOf(ApiaryModel()) }
+    var apiaryData by remember(apiaryModel) { mutableStateOf(apiaryModel ?: ApiaryModel()) }
+    val isEditing = apiaryModel != null
 
-    LaunchedEffect(apiaryModel) {
-        apiaryModel?.let {
-            apiaryData = apiaryModel
-        }
-    }
-
-    var typeOptions by remember {
-        mutableStateOf(
-            ApiaryType(
-                expanded = false,
-                selectedOption = 0,
-                changed = false,
-                options = CreateApiaryConstants.type,
-            )
-        )
-    }
+    var typeOptions by rememberOptionsState(
+        options = CreateApiaryConstants.type,
+        selectedOption = apiaryData.type,
+        changed = isEditing
+    )
 
     BoxWithConstraints(
         modifier = Modifier
@@ -132,7 +123,7 @@ private fun CreateApiaryLayout(
         ) {
             TopBar(
                 backNavigation = { resultNavigator.navigateBack() },
-                title = if (apiaryModel != null) "Edytuj pasiekę" else "Dodaj pasiekę",
+                title = if (isEditing) "Edytuj pasiekę" else "Dodaj pasiekę",
             )
 
             StepsBelt(maxSteps = 2, currentStep = 1)
@@ -152,7 +143,7 @@ private fun CreateApiaryLayout(
                     apiaryData = apiaryData.copy(type = typeOptions.selectedOption)
                     navigator.navigate(
                         CreateApiaryLocationScreenDestination(
-                            isEditing = apiaryModel != null,
+                            isEditing = isEditing,
                             apiaryData = apiaryData
                         )
                     )
@@ -178,8 +169,8 @@ private fun CreateApiaryLayout(
 private fun ApiaryForm(
     apiaryData: ApiaryModel,
     onApiaryDataChange: (ApiaryModel) -> Unit,
-    typeOptions: ApiaryType,
-    onTypeOptionsChange: (ApiaryType) -> Unit
+    typeOptions: OptionsState,
+    onTypeOptionsChange: (OptionsState) -> Unit
 ) {
     Column(
         modifier = Modifier
