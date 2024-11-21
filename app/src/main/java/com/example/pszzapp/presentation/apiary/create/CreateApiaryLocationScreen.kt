@@ -55,16 +55,23 @@ fun CreateApiaryLocationScreen(
     val createApiaryState = viewModel.createApiaryState.collectAsState().value
 
     if (createApiaryState is CreateApiaryState.Redirect) {
+        var message: String? = null
         if (navController.isRouteInBackStack("apiaries_screen")) {
             navController.getBackStackEntry("apiaries_screen").savedStateHandle["refresh"] = true
         }
 
+        if (isEditing) {
+            navController.getBackStackEntry("apiary_screen/${createApiaryState.apiaryId}").savedStateHandle["refresh"] = true
+            message = "Gotowe! Aktualizacja przebiegła pomyślnie."
+        }
+
         navigator.navigate(
-            ApiaryScreenDestination(id = createApiaryState.apiaryId)
+            ApiaryScreenDestination(id = createApiaryState.apiaryId, message = message)
         ) {
             popUpTo(CreateApiaryScreenDestination.route) { inclusive = true }
+            launchSingleTop = true
         }
-    }
+}
 
     CreateApiaryLocationLayout(
         isEditing = isEditing,

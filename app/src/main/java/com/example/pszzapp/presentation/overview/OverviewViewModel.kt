@@ -32,7 +32,7 @@ class OverviewViewModel(
         getOverviewById(id)
     }
 
-    private fun getOverviewById(id: String) {
+    fun getOverviewById(id: String) {
         _overviewState.value = OverviewState.Loading
 
         viewModelScope.launch {
@@ -52,10 +52,11 @@ class OverviewViewModel(
 
     fun removeOverview(
         overviewId: String,
+        hiveId: String,
     ) {
         viewModelScope.launch {
             try {
-                _removeOverviewState.value = removeOverviewUseCase(overviewId = overviewId)
+                _removeOverviewState.value = removeOverviewUseCase(overviewId = overviewId, hiveId = hiveId)
             } catch (e: Exception) {
                 _removeOverviewState.value = RemoveOverviewState.Error("${e.message}")
             }
@@ -71,6 +72,6 @@ sealed class OverviewState {
 
 sealed class RemoveOverviewState {
     data object None : RemoveOverviewState()
-    data object Success : RemoveOverviewState()
+    data class Success(val hiveId: String) : RemoveOverviewState()
     data class Error(val message: String) : RemoveOverviewState()
 }

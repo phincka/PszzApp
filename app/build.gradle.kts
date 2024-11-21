@@ -80,6 +80,7 @@ dependencies {
 
 //    implementation("com.google.firebase:firebase-core:21.1.1")
 //    implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
 
 
     implementation("androidx.compose.ui:ui:1.6.8")

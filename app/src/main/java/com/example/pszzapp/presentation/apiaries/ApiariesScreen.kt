@@ -25,11 +25,13 @@ import com.example.pszzapp.presentation.components.ApiariesLazyColumn
 import com.example.pszzapp.presentation.components.LoadingDialog
 import com.example.pszzapp.presentation.components.TopBar
 import com.example.pszzapp.presentation.dashboard.BackgroundShapes
+import com.example.pszzapp.presentation.main.SnackbarHandler
 import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.example.pszzapp.ui.theme.AppTheme
 import com.example.pszzapp.ui.theme.Typography
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @SuppressLint("StateFlowValueCalledInComposition")
@@ -38,8 +40,12 @@ import org.koin.androidx.compose.koinViewModel
 fun ApiariesScreen(
     viewModel: ApiariesViewModel = koinViewModel(),
     navigator: DestinationsNavigator,
-    navController: NavController
+    navController: NavController,
+    snackbarHandler: SnackbarHandler,
+    message: String? = null,
 ) {
+    val apiariesState = viewModel.apiariesState.collectAsState().value
+
     val backStackEntry = navController.currentBackStackEntry
     val refresh = backStackEntry?.savedStateHandle?.get<Boolean>("refresh")
 
@@ -49,7 +55,15 @@ fun ApiariesScreen(
         }
     }
 
-    val apiariesState = viewModel.apiariesState.collectAsState().value
+    LaunchedEffect(message) {
+        launch {
+            message?.let {
+                snackbarHandler.showSuccessSnackbar(
+                    message = it
+                )
+            }
+        }
+    }
 
     ApiariesLayout(
         navController = navController,

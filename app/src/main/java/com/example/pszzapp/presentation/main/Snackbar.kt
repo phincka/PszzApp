@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavController.OnDestinationChangedListener
+import com.example.pszzapp.ui.theme.AppTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -51,7 +52,7 @@ fun Snackbar(
     var isSuccessSnackbar by remember { mutableStateOf(false) }
     val snackbarPadding = if (isNavBarVisible) BOTTOM_BAR_HEIGHT else 0.dp
     val currentSnackbarData = snackbarHostState.currentSnackbarData
-    val snackbarColor = if (isSuccessSnackbar) Color.Green else Color.Red
+    val snackbarColor = if (isSuccessSnackbar) AppTheme.colors.green else AppTheme.colors.primary50
     val destinationChangedListener = OnDestinationChangedListener { _, _, _ ->
         snackbarHostState.currentSnackbarData?.dismiss()
         isVisible = false

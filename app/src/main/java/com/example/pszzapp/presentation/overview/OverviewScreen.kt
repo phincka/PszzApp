@@ -1,7 +1,6 @@
 package com.example.pszzapp.presentation.overview
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +17,7 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,17 +37,22 @@ import com.example.pszzapp.data.model.DetailedOverviewModel
 import com.example.pszzapp.data.model.OverviewModel
 import com.example.pszzapp.data.model.toDetailedOverviewModel
 import com.example.pszzapp.data.util.DropdownMenuItemData
+import com.example.pszzapp.presentation.apiary.create.isRouteInBackStack
+import com.example.pszzapp.presentation.apiary.navToDashboard
+import com.example.pszzapp.presentation.apiary.navToHiveScreen
 import com.example.pszzapp.presentation.components.LoadingDialog
 import com.example.pszzapp.presentation.components.TextError
 import com.example.pszzapp.presentation.components.TopBar
 import com.example.pszzapp.presentation.dashboard.BackgroundShapes
 import com.example.pszzapp.presentation.destinations.CreateOverviewStep1ScreenDestination
+import com.example.pszzapp.presentation.main.SnackbarHandler
 import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.example.pszzapp.ui.theme.AppTheme
 import com.example.pszzapp.ui.theme.Typography
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import java.time.format.DateTimeFormatter
@@ -57,21 +62,53 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun OverviewScreen(
     overviewId: String,
+    message: String? = null,
     destinationsNavigator: DestinationsNavigator,
     resultNavigator: ResultBackNavigator<Boolean>,
     navController: NavController,
-    viewModel: OverviewViewModel = koinViewModel(parameters = { parametersOf(overviewId) })
+    viewModel: OverviewViewModel = koinViewModel(parameters = { parametersOf(overviewId) }),
+    snackbarHandler: SnackbarHandler,
 ) {
     val overviewState = viewModel.overviewState.collectAsState().value
     val removeOverviewState = viewModel.removeOverviewState.collectAsState().value
+    val backStackEntry = navController.currentBackStackEntry
+    val refresh = backStackEntry?.savedStateHandle?.get<Boolean>("refresh")
+
+    LaunchedEffect(removeOverviewState, refresh) {
+        launch {
+            if (removeOverviewState is RemoveOverviewState.Error) snackbarHandler.showErrorSnackbar(
+                message = removeOverviewState.message
+            )
+
+            if (refresh == true) viewModel.getOverviewById(overviewId)
+        }
+    }
 
     var isModalActive by remember { mutableStateOf(false) }
 
     when (overviewState) {
         is OverviewState.Success -> {
+            LaunchedEffect(message) {
+                launch {
+                    message?.let {
+                        snackbarHandler.showSuccessSnackbar(
+                            message = it
+                        )
+                    }
+                }
+            }
+
             if (removeOverviewState is RemoveOverviewState.Success) {
-                navController.getBackStackEntry("hive_Screen/${overviewState.overview.hiveId}").savedStateHandle["refresh"] = true
-                destinationsNavigator.navigateUp()
+                val message = "Pomyślnie usunięto przegląd."
+
+                if (navController.isRouteInBackStack("dashboard_screen")) {
+                    navController.getBackStackEntry("dashboard_screen").savedStateHandle["refresh"] = true
+                    destinationsNavigator.navToDashboard(message = message)
+                } else {
+                    navController.getBackStackEntry("hive_Screen/${overviewState.overview.hiveId}").savedStateHandle["refresh"] = true
+                    destinationsNavigator.navToHiveScreen(hiveId = removeOverviewState.hiveId, message = message)
+                }
+
             }
 
             val menuItems = listOf(
@@ -93,14 +130,13 @@ fun OverviewScreen(
                 ),
             )
 
-            Log.d("LOG_H", overviewState.overview.strength.toString())
             OverviewLayout(
                 navController = navController,
                 resultNavigator = resultNavigator,
                 menuItems = menuItems,
                 isModalActive = isModalActive,
                 setModal = { isModalActive = it },
-                removeOverview = { viewModel.removeOverview(overviewId) },
+                removeOverview = { viewModel.removeOverview(overviewId, overviewState.overview.hiveId) },
                 detailedOverview = overviewState.overview.toDetailedOverviewModel(),
             )
         }

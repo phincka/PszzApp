@@ -1,7 +1,12 @@
 package com.example.pszzapp.presentation.qrScanner
 
+import android.Manifest.permission.CAMERA
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.graphics.ImageFormat
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.annotation.OptIn
 import androidx.camera.core.CameraSelector
@@ -41,6 +46,9 @@ import com.example.pszzapp.presentation.main.SnackbarHandler
 import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.example.pszzapp.ui.theme.AppTheme
 import com.example.pszzapp.ui.theme.Typography
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionStatus.Denied
+import com.google.accompanist.permissions.PermissionStatus.Granted
 import com.google.zxing.BinaryBitmap
 import com.google.zxing.LuminanceSource
 import com.google.zxing.Result
@@ -54,8 +62,11 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 
-@SuppressLint("StateFlowValueCalledInComposition")
+@kotlin.OptIn(ExperimentalPermissionsApi::class)
+@SuppressLint("StateFlowValueCalledInComposition", "PermissionLaunchedDuringComposition")
 @Destination
 //@RootNavGraph(start = true)
 @Composable
@@ -83,6 +94,15 @@ fun QrScannerScreen(
     LaunchedEffect(qrScannerState) {
         launch {
             if (qrScannerState is QrScannerState.Error) snackbarHandler.showErrorSnackbar(message = qrScannerState.message)
+        }
+    }
+
+    val cameraPermissionState = rememberPermissionState(permission = CAMERA)
+
+    LaunchedEffect(cameraPermissionState.status) {
+        when (cameraPermissionState.status) {
+            Granted -> { }
+            is Denied -> { cameraPermissionState.launchPermissionRequest() }
         }
     }
 
@@ -284,4 +304,15 @@ fun BottomSheet(
             }
         }
     }
+}
+
+fun Context.openAppSettings() {
+    val intent = Intent().apply {
+        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+        addCategory(Intent.CATEGORY_DEFAULT)
+        data = Uri.parse("package:$packageName")
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+    }
+    startActivity(intent)
 }

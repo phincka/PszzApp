@@ -54,10 +54,16 @@ fun CreateHiveStep3Screen(
     val createHiveState by viewModel.createHiveState.collectAsState()
 
     if (createHiveState is CreateHiveState.Redirect) {
-        navController.getBackStackEntry("apiary_screen/${(createHiveState as CreateHiveState.Redirect).apiaryId}").savedStateHandle["refresh"] = true
-        navController.getBackStackEntry("hive_screen/${(createHiveState as CreateHiveState.Redirect).hiveId}").savedStateHandle["refresh"] = true
+        var message: String? = null
 
-        navigator.navigate(HiveScreenDestination(id = (createHiveState as CreateHiveState.Redirect).hiveId)) {
+        navController.getBackStackEntry("apiary_screen/${(createHiveState as CreateHiveState.Redirect).apiaryId}").savedStateHandle["refresh"] = true
+
+        if (isEditing) {
+            navController.getBackStackEntry("hive_screen/${(createHiveState as CreateHiveState.Redirect).hiveId}").savedStateHandle["refresh"] = true
+            message = "Gotowe! Aktualizacja przebiegła pomyślnie."
+        }
+
+        navigator.navigate(HiveScreenDestination(id = (createHiveState as CreateHiveState.Redirect).hiveId, message = message)) {
             popUpTo(CreateHiveStep1ScreenDestination.route) { inclusive = true }
             launchSingleTop = true
         }

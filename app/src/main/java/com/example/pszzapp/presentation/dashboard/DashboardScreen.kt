@@ -1,7 +1,6 @@
 package com.example.pszzapp.presentation.dashboard
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,6 +52,7 @@ import com.example.pszzapp.presentation.destinations.BaseAuthScreenDestination
 import com.example.pszzapp.presentation.destinations.CreateApiaryScreenDestination
 import com.example.pszzapp.presentation.destinations.DashboardScreenDestination
 import com.example.pszzapp.presentation.destinations.OverviewScreenDestination
+import com.example.pszzapp.presentation.main.SnackbarHandler
 import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.example.pszzapp.ui.theme.AppTheme
 import com.example.pszzapp.ui.theme.Typography
@@ -59,6 +60,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.spec.Direction
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @SuppressLint("StateFlowValueCalledInComposition")
@@ -66,18 +68,29 @@ import org.koin.androidx.compose.koinViewModel
 @RootNavGraph(start = true)
 @Composable
 fun DashboardScreen(
+    message: String? = null,
     destinationsNavigator: DestinationsNavigator,
     viewModel: DashboardViewModel = koinViewModel(),
     navController: NavController,
+    snackbarHandler: SnackbarHandler,
 ) {
-    Log.d("LOG_DASZ", ApiariesScreenDestination.route)
     val lastOverviewsState = viewModel.lastOverviewsState.collectAsState().value
+
+    LaunchedEffect(message) {
+        launch {
+            message?.let {
+                snackbarHandler.showSuccessSnackbar(
+                    message = it
+                )
+            }
+        }
+    }
 
     val buttonTilesNavigation = listOf(
         ButtonTile(
             title = "Twoje pasieki",
             icon = R.drawable.ic_tile_button,
-            direction = ApiariesScreenDestination,
+            direction = ApiariesScreenDestination(),
         ),
         ButtonTile(
             title = "Dodaj pasiekę",
@@ -353,14 +366,14 @@ fun EndangeredHives(
             title = "Ul 01",
             info = "Brak matki!",
             hiveType = "(ul produkcyjny)",
-            onClick = { navigator.navigate(DashboardScreenDestination) },
+            onClick = { navigator.navigate(DashboardScreenDestination()) },
         )
 
         OverviewButton(
             title = "Ul 01",
             info = "Mała ilosć pokarmu",
             hiveType = "(odkład)",
-            onClick = { navigator.navigate(DashboardScreenDestination) },
+            onClick = { navigator.navigate(DashboardScreenDestination()) },
         )
     }
 }
@@ -456,6 +469,24 @@ fun OverviewButton(
             contentDescription = "arrow_right",
             modifier = Modifier.size(24.dp),
         )
+    }
+}
+
+@Composable
+fun LaunchedSnackbarEffect(
+    message: String,
+    isSuccess: Boolean = true,
+    snackbarHandler: SnackbarHandler,
+) {
+    LaunchedEffect(Unit) {
+        launch {
+            if (isSuccess) {
+                snackbarHandler.showSuccessSnackbar(message = message)
+
+            } else {
+                snackbarHandler.showErrorSnackbar(message = message)
+            }
+        }
     }
 }
 

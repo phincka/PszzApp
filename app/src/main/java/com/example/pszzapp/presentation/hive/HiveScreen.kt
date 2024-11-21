@@ -1,7 +1,6 @@
 package com.example.pszzapp.presentation.hive
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,12 +53,14 @@ import com.example.pszzapp.presentation.destinations.FeedingScreenDestination
 import com.example.pszzapp.presentation.destinations.OverviewScreenDestination
 import com.example.pszzapp.presentation.destinations.TreatmentScreenDestination
 import com.example.pszzapp.presentation.hive.create.CreateHiveConstants
+import com.example.pszzapp.presentation.main.SnackbarHandler
 import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.example.pszzapp.ui.theme.AppTheme
 import com.example.pszzapp.ui.theme.Typography
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -68,10 +69,12 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun HiveScreen(
     id: String,
+    message: String? = null,
     destinationsNavigator: DestinationsNavigator,
     resultNavigator: ResultBackNavigator<Boolean>,
     navController: NavController,
     viewModel: HiveViewModel = koinViewModel(parameters = { parametersOf(id) }),
+    snackbarHandler: SnackbarHandler,
 ) {
     val backStackEntry = navController.currentBackStackEntry
     val refresh = backStackEntry?.savedStateHandle?.get<Boolean>("refresh")
@@ -89,13 +92,23 @@ fun HiveScreen(
     val removeHiveState = viewModel.removeHiveState.collectAsState().value
 
     if (removeHiveState is RemoveHiveState.Success) {
-        destinationsNavigator.navToApiariesScreen()
+        destinationsNavigator.navToApiariesScreen(message = "Pomyślnie usunięto ul.")
     }
 
     var isModalActive by remember { mutableStateOf(false) }
 
     when (hiveState) {
         is HiveState.Success -> {
+            LaunchedEffect(message) {
+                launch {
+                    message?.let {
+                        snackbarHandler.showSuccessSnackbar(
+                            message = it
+                        )
+                    }
+                }
+            }
+
             val hiveId = hiveState.hive.id
             val menuItems = listOf(
                 DropdownMenuItemData(

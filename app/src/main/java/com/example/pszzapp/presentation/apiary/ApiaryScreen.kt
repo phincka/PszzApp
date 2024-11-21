@@ -1,7 +1,6 @@
 package com.example.pszzapp.presentation.apiary
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -78,15 +77,10 @@ fun ApiaryScreen(
     viewModel: ApiaryViewModel = koinViewModel(parameters = { parametersOf(id) }),
     navController: NavController,
     snackbarHandler: SnackbarHandler,
+    message: String? = null,
 ) {
     val backStackEntry = navController.currentBackStackEntry
     val refresh = backStackEntry?.savedStateHandle?.get<Boolean>("refresh")
-
-    LaunchedEffect(refresh) {
-        if (refresh == true) {
-            viewModel.getHivesByApiaryId(id)
-        }
-    }
 
     val apiaryState = viewModel.apiaryState.collectAsState().value
     val removeApiaryState = viewModel.removeApiaryState.collectAsState().value
@@ -95,16 +89,19 @@ fun ApiaryScreen(
     var isDropdownMenuVisible by remember { mutableStateOf(false) }
 
     if (removeApiaryState is RemoveApiaryState.Success) {
-        destinationsNavigator.navToApiariesScreen()
+        destinationsNavigator.navToApiariesScreen(message = "Pomyślnie usunięto pasiekę.")
     }
 
-    LaunchedEffect(removeApiaryState) {
+    LaunchedEffect(removeApiaryState, refresh) {
         launch {
             if (removeApiaryState is RemoveApiaryState.Error) snackbarHandler.showErrorSnackbar(
                 message = removeApiaryState.message
             )
+
+            if (refresh == true) viewModel.getHivesByApiaryId(id)
         }
     }
+
 
     Box(
         modifier = Modifier
@@ -112,7 +109,6 @@ fun ApiaryScreen(
             .fillMaxSize()
     ) {
         BackgroundShapes()
-        Log.d("LOG_DUPA", "refreshHives".toString())
 
         Column {
             when (apiaryState) {
@@ -131,9 +127,10 @@ fun ApiaryScreen(
                         isSearching = viewModel.isSearching.collectAsState().value,
                         navToQrScannerScreen = destinationsNavigator::navToQrScannerScreen,
                         navToHive = destinationsNavigator::navToHiveScreen,
-                        navToDashboard = destinationsNavigator::navToDashboard,
                         navToEditApiary = destinationsNavigator::navToEditApiary,
                         navToCreateHive = destinationsNavigator::navToCreateHive,
+                        snackbarHandler = snackbarHandler,
+                        message = message,
                     )
                 }
 
@@ -167,10 +164,21 @@ fun ApiaryLayout(
     isSearching: Boolean,
     navToQrScannerScreen: () -> Unit,
     navToHive: (String) -> Unit,
-    navToDashboard: () -> Unit,
     navToEditApiary: (ApiaryModel) -> Unit,
     navToCreateHive: (String) -> Unit,
+    snackbarHandler: SnackbarHandler,
+    message: String? = null,
 ) {
+    LaunchedEffect(message) {
+        launch {
+            message?.let {
+                snackbarHandler.showSuccessSnackbar(
+                    message = it
+                )
+            }
+        }
+    }
+
     val menuItems = listOf(
         DropdownMenuItemData(
             icon = Icons.Outlined.Edit,
@@ -205,9 +213,8 @@ fun ApiaryLayout(
     )
 
     CircleTopBar(
-        circleText = "s",
-//        circleText = (if (hives.isNotEmpty()) apiary.hivesCount else apiary.name.first()
-//            .uppercase()).toString(),
+        circleText = (if (hives.isNotEmpty()) apiary.hivesCount else apiary.name.first()
+            .uppercase()).toString(),
         title = apiary.name,
         subtitle = if (apiary.lastOverview != null) "Ostatni przegląd: ${apiary.lastOverview}" else "Brak przeglądów",
         showSubtitle = hives.isNotEmpty(),
@@ -336,9 +343,10 @@ private fun DestinationsNavigator.navToEditApiary(apiaryModel: ApiaryModel) =
 
 private fun DestinationsNavigator.navToQrScannerScreen() = navigate(QrScannerScreenDestination)
 
-fun DestinationsNavigator.navToApiariesScreen() = navigate(ApiariesScreenDestination)
+fun DestinationsNavigator.navToApiariesScreen(message: String? = null) =
+    navigate(ApiariesScreenDestination(message = message))
 
-private fun DestinationsNavigator.navToHiveScreen(hiveId: String) =
-    navigate(HiveScreenDestination(hiveId))
+fun DestinationsNavigator.navToHiveScreen(hiveId: String, message: String? = null) =
+    navigate(HiveScreenDestination(hiveId, message))
 
-fun DestinationsNavigator.navToDashboard() = navigate(DashboardScreenDestination)
+fun DestinationsNavigator.navToDashboard(message: String? = null) = navigate(DashboardScreenDestination(message = message))

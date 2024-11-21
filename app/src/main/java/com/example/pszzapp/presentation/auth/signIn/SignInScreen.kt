@@ -129,7 +129,7 @@ fun SignInScreen(
             }
         }
 
-        if (signInState is AuthState.Success) navigator.navigate(DashboardScreenDestination)
+        if (signInState is AuthState.Success) navigator.navigate(DashboardScreenDestination())
         if (signInState is AuthState.Loading) LoadingDialog()
     }
 }

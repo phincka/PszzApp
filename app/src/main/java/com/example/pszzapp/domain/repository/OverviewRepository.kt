@@ -1,6 +1,5 @@
 package com.example.pszzapp.domain.repository
 
-import com.example.pszzapp.data.model.DetailedOverviewModel
 import com.example.pszzapp.data.model.ListItemOverviewModel
 import com.example.pszzapp.data.model.OverviewModel
 import com.example.pszzapp.presentation.overview.RemoveOverviewState
@@ -13,5 +12,5 @@ interface OverviewRepository {
     suspend fun getLastOverviewId(hiveId: String): String?
     suspend fun createOverview(overviewModel: OverviewModel): CreateOverviewState
     suspend fun editOverview(overviewModel: OverviewModel): CreateOverviewState
-    suspend fun removeOverview(overviewId: String): RemoveOverviewState
+    suspend fun removeOverview(overviewId: String, hiveId: String): RemoveOverviewState
 }

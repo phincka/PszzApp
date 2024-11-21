@@ -28,6 +28,7 @@ import com.example.pszzapp.R
 import com.example.pszzapp.data.model.OverviewModel
 import com.example.pszzapp.presentation.apiary.create.InputDate
 import com.example.pszzapp.presentation.apiary.create.TabsSelect
+import com.example.pszzapp.presentation.apiary.create.isRouteInBackStack
 import com.example.pszzapp.presentation.auth.base.Button
 import com.example.pszzapp.presentation.components.DatePicker
 import com.example.pszzapp.presentation.components.LoadingDialog
@@ -74,14 +75,21 @@ fun CreateOverviewStep3Screen(
         )
 
         is CreateOverviewState.Redirect -> {
-            navController.getBackStackEntry("hive_Screen/${overviewData.hiveId}").savedStateHandle["refresh"] = true
+            var message: String? = null
+            var route = "hive_Screen/${overviewData.hiveId}"
+
+            if (isEditing) {
+                message = "Gotowe! Aktualizacja przebiegła pomyślnie."
+                route = "overview_screen/${overviewData.id}"
+            }
+
+            navController.getBackStackEntry(route).savedStateHandle["refresh"] = true
 
             navigator.navigate(
-                OverviewScreenDestination(
-                    overviewId = createOverviewState.overviewId
-                )
+                OverviewScreenDestination(overviewId = createOverviewState.overviewId, message = message)
             ) {
                 popUpTo(CreateOverviewStep1ScreenDestination.route) { inclusive = true }
+                launchSingleTop = true
             }
         }
 

@@ -41,7 +41,7 @@ class OverviewRepositoryImpl(
                                 overviewsList.add(overview)
                             }
                         }
-                        continuation.resume(overviewsList)
+                        continuation.resume(overviewsList.sortedBy { it.overviewDate })
                     }
                     .addOnFailureListener { exception ->
                         continuation.resumeWithException(exception)
@@ -69,7 +69,7 @@ class OverviewRepositoryImpl(
                                 overviewsList.add(overview)
                             }
                         }
-                        continuation.resume(overviewsList)
+                        continuation.resume(overviewsList.sortedByDescending { it.overviewDate })
                     }
                     .addOnFailureListener { exception ->
                         continuation.resumeWithException(exception)
@@ -79,6 +79,8 @@ class OverviewRepositoryImpl(
 
     override suspend fun getLastOverviewId(hiveId: String): String? =
         suspendCoroutine { continuation ->
+            val overviewsList = mutableListOf<ListItemOverviewModel>()
+
             firebaseAuth.currentUser?.let {
                 firebaseFireStore
                     .collection("overviews")
@@ -86,8 +88,21 @@ class OverviewRepositoryImpl(
                     .get()
                     .addOnSuccessListener { documentSnapshot ->
                         var overviewId: String? = null
-                        if (documentSnapshot.documents.isNotEmpty()) overviewId =
-                            documentSnapshot.documents.first().id
+
+                        for (document in documentSnapshot.documents) {
+                            val overviewData = document.data
+
+                            overviewData?.let {
+                                var overview = overviewData.toListItemOverviewModel()
+                                overview = overview.copy(warningInfo = "Testowa!")
+                                overviewsList.add(overview)
+                            }
+                        }
+
+                        if (overviewsList.isNotEmpty()) {
+                            overviewId = overviewsList.sortedBy { it.overviewDate }.first().id
+                        }
+
                         continuation.resume(overviewId)
                     }
                     .addOnFailureListener { exception ->
@@ -191,6 +206,7 @@ class OverviewRepositoryImpl(
 
     override suspend fun removeOverview(
         overviewId: String,
+        hiveId: String,
     ): RemoveOverviewState =
         suspendCancellableCoroutine { continuation ->
             if (firebaseAuth.currentUser != null) {
@@ -207,7 +223,7 @@ class OverviewRepositoryImpl(
                                     }
                             }
 
-                            continuation.resume(RemoveOverviewState.Success)
+                            continuation.resume(RemoveOverviewState.Success(hiveId = hiveId))
                         }
                         .addOnFailureListener {
                             continuation.resume(RemoveOverviewState.Error("exception"))

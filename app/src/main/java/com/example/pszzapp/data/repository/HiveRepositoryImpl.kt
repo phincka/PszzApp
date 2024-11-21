@@ -39,7 +39,6 @@ class HiveRepositoryImpl(
                 firebaseFireStore
                     .collection("hives")
                     .whereEqualTo("apiaryId", id)
-                    .orderBy("hiveCreatedDate", Query.Direction.DESCENDING)
                     .get()
                     .addOnSuccessListener { querySnapshot ->
                         for (document in querySnapshot.documents) {
@@ -54,7 +53,7 @@ class HiveRepositoryImpl(
                                 hivesList.add(hive)
                             }
                         }
-                        continuation.resume(hivesList)
+                        continuation.resume(hivesList.sortedBy { it.hiveCreatedDate })
                     }
                     .addOnFailureListener { exception ->
                         continuation.resumeWithException(exception)
