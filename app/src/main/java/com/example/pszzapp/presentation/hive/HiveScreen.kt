@@ -49,9 +49,13 @@ import com.example.pszzapp.presentation.dashboard.navToOverview
 import com.example.pszzapp.presentation.destinations.CreateApiaryScreenDestination
 import com.example.pszzapp.presentation.destinations.CreateHiveStep1ScreenDestination
 import com.example.pszzapp.presentation.destinations.CreateOverviewStep1ScreenDestination
+import com.example.pszzapp.presentation.destinations.EditQueenScreenDestination
 import com.example.pszzapp.presentation.destinations.FeedingScreenDestination
+import com.example.pszzapp.presentation.destinations.HiveInfoScreenDestination
 import com.example.pszzapp.presentation.destinations.OverviewScreenDestination
+import com.example.pszzapp.presentation.destinations.OverviewsScreenDestination
 import com.example.pszzapp.presentation.destinations.TreatmentScreenDestination
+import com.example.pszzapp.presentation.editQueen.EditQueenScreen
 import com.example.pszzapp.presentation.hive.create.CreateHiveConstants
 import com.example.pszzapp.presentation.main.SnackbarHandler
 import com.example.pszzapp.presentation.main.bottomBarPadding
@@ -162,31 +166,70 @@ fun HiveScreen(
                     ),
                 ),
                 ButtonTile(
-                    title = "Leczenie",
+                    title = "Zmień matkę",
                     icon = R.drawable.ic_tile_button,
-                    direction = TreatmentScreenDestination(hiveId = hiveId),
+                    direction = EditQueenScreenDestination(
+                        hiveId = hiveId,
+                    ),
                 ),
-                ButtonTile(
-                    title = "Karmienie",
-                    icon = R.drawable.ic_tile_button,
-                    direction = FeedingScreenDestination(hiveId = hiveId),
-                ),
-                ButtonTile(
-                    title = "Przypomnienia",
-                    icon = R.drawable.ic_tile_button,
-                    direction = CreateApiaryScreenDestination(),
-                ),
+//                ButtonTile(
+//                    title = "Dodaj leczenie",
+//                    icon = R.drawable.ic_tile_button,
+//                    direction = TreatmentScreenDestination(hiveId = hiveId),
+//                ),
+//                ButtonTile(
+//                    title = "Dodaj karmienie",
+//                    icon = R.drawable.ic_tile_button,
+//                    direction = FeedingScreenDestination(hiveId = hiveId),
+//                ),
+//                ButtonTile(
+//                    title = "Dodaj zbiory",
+//                    icon = R.drawable.ic_tile_button,
+//                    direction = CreateApiaryScreenDestination(),
+//                ),
+//                ButtonTile(
+//                    title = "Dodaj przypomnienie",
+//                    icon = R.drawable.ic_tile_button,
+//                    direction = CreateApiaryScreenDestination(),
+//                ),
             )
-            if (lastOverviewIdState is LastOverviewIdState.Success && lastOverviewIdState.overviewId != null) {
-                buttonTilesNavigation.add(
-                    0,
-                    ButtonTile(
-                        title = "Raport",
-                        icon = R.drawable.ic_tile_button,
-                        direction = OverviewScreenDestination(overviewId = lastOverviewIdState.overviewId),
-                    )
-                )
-            }
+
+            val buttonTilesNavigation2 = mutableListOf(
+                ButtonTile(
+                    title = "Stan ula",
+                    icon = R.drawable.ic_tile_button,
+                    direction = HiveInfoScreenDestination(
+                        hiveId = hiveId,
+                    ),
+                ),
+                ButtonTile(
+                    title = "Przeglądy",
+                    icon = R.drawable.ic_tile_button,
+                    direction = OverviewsScreenDestination(
+                        hiveId = hiveId,
+                    ),
+                ),
+//                ButtonTile(
+//                    title = "Leczenie",
+//                    icon = R.drawable.ic_tile_button,
+//                    direction = TreatmentScreenDestination(hiveId = hiveId),
+//                ),
+//                ButtonTile(
+//                    title = "Karmienie",
+//                    icon = R.drawable.ic_tile_button,
+//                    direction = FeedingScreenDestination(hiveId = hiveId),
+//                ),
+//                ButtonTile(
+//                    title = "Zbiory",
+//                    icon = R.drawable.ic_tile_button,
+//                    direction = CreateApiaryScreenDestination(),
+//                ),
+//                ButtonTile(
+//                    title = "Kalendarz prac",
+//                    icon = R.drawable.ic_tile_button,
+//                    direction = CreateApiaryScreenDestination(),
+//                ),
+            )
 
             HiveLayout(
                 navController = navController,
@@ -198,6 +241,7 @@ fun HiveScreen(
                 overviewsState = overviewsState,
                 navigator = destinationsNavigator,
                 buttonTilesNavigation = buttonTilesNavigation,
+                buttonTilesNavigation2 = buttonTilesNavigation2,
                 geOverviewsByHiveId = viewModel::geOverviewsByHiveId,
                 removeHive = viewModel::removeHive
             )
@@ -221,6 +265,7 @@ fun HiveLayout(
     overviewsState: OverviewsState,
     navigator: DestinationsNavigator,
     buttonTilesNavigation: List<ButtonTile>,
+    buttonTilesNavigation2: List<ButtonTile>,
     geOverviewsByHiveId: (String) -> Unit,
     removeHive: (String) -> Unit,
 ) {
@@ -234,7 +279,7 @@ fun HiveLayout(
         TitleTab(
             title = "Przeglądy",
             onClick = {
-                geOverviewsByHiveId(hive.id)
+//                geOverviewsByHiveId(hive.id)
             },
         )
     )
@@ -305,18 +350,10 @@ fun HiveLayout(
                 }
 
                 1 -> {
-                    when (overviewsState) {
-                        is OverviewsState.Success -> {
-                            OverviewsLazyColumn(
-                                overviews = overviewsState.overviews,
-                                navToOverview = navigator::navToOverview
-                            )
-                        }
-
-                        is OverviewsState.Loading -> LoadingDialog()
-                        is OverviewsState.Error -> TextError(overviewsState.message)
-                        is OverviewsState.None -> Unit
-                    }
+                    ButtonTiles(
+                        navigator = navigator,
+                        buttonTilesNavigation = buttonTilesNavigation2,
+                    )
                 }
             }
         }

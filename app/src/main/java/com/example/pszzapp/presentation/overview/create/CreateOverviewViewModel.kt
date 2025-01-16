@@ -2,7 +2,6 @@ package com.example.pszzapp.presentation.overview.create
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.pszzapp.data.model.HiveModel
 import com.example.pszzapp.data.model.OverviewModel
 import com.example.pszzapp.domain.usecase.overview.CreateOverviewUseCase
 import com.example.pszzapp.domain.usecase.overview.EditOverviewUseCase

@@ -2,12 +2,9 @@ package com.example.pszzapp.presentation.overview
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.pszzapp.data.model.DetailedOverviewModel
 import com.example.pszzapp.data.model.OverviewModel
-import com.example.pszzapp.domain.usecase.hive.GetHiveByIdUseCase
 import com.example.pszzapp.domain.usecase.overview.GetOverviewByIdUseCase
 import com.example.pszzapp.domain.usecase.overview.RemoveOverviewUseCase
-import com.example.pszzapp.presentation.hive.RemoveHiveState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -25,7 +22,8 @@ class OverviewViewModel(
     )
     val overviewState: StateFlow<OverviewState> = _overviewState
 
-    private val _removeOverviewState: MutableStateFlow<RemoveOverviewState> = MutableStateFlow(RemoveOverviewState.None)
+    private val _removeOverviewState: MutableStateFlow<RemoveOverviewState> = MutableStateFlow(
+        RemoveOverviewState.None)
     val removeOverviewState: StateFlow<RemoveOverviewState> = _removeOverviewState
 
     init {

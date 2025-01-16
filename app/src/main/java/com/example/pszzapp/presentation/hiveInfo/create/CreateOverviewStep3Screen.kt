@@ -1,4 +1,4 @@
-package com.example.pszzapp.presentation.overview.create
+package com.example.pszzapp.presentation.hiveInfo.create
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
@@ -13,7 +13,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,17 +29,17 @@ import com.example.pszzapp.presentation.apiary.create.InputDate
 import com.example.pszzapp.presentation.apiary.create.TabsSelect
 import com.example.pszzapp.presentation.auth.base.Button
 import com.example.pszzapp.presentation.components.DatePicker
-import com.example.pszzapp.presentation.components.LoadingDialog
 import com.example.pszzapp.presentation.components.TextError
 import com.example.pszzapp.presentation.components.TopBar
 import com.example.pszzapp.presentation.dashboard.BackgroundShapes
-import com.example.pszzapp.presentation.destinations.CreateOverviewStep1ScreenDestination
-import com.example.pszzapp.presentation.destinations.OverviewScreenDestination
 import com.example.pszzapp.presentation.hive.create.OptionsState
 import com.example.pszzapp.presentation.hive.create.StepsBelt
 import com.example.pszzapp.presentation.hive.create.rememberOptionsState
 import com.example.pszzapp.presentation.hive.create.toFormattedDate
 import com.example.pszzapp.presentation.main.bottomBarPadding
+import com.example.pszzapp.presentation.overview.create.CreateOverviewState
+import com.example.pszzapp.presentation.overview.create.CreateOverviewViewModel
+import com.example.pszzapp.presentation.overview.create.OverviewConstants
 import com.example.pszzapp.ui.theme.AppTheme
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -51,7 +50,7 @@ import org.koin.androidx.compose.koinViewModel
 @SuppressLint("StateFlowValueCalledInComposition", "UnrememberedGetBackStackEntry")
 @Destination
 @Composable
-fun CreateOverviewStep3Screen(
+fun CreateHIveInfoStep3Screen(
     isEditing: Boolean = false,
     resultNavigator: ResultBackNavigator<Boolean>,
     navController: NavController,
@@ -59,41 +58,41 @@ fun CreateOverviewStep3Screen(
     viewModel: CreateOverviewViewModel = koinViewModel(),
     overviewData: OverviewModel,
 ) {
-    when (val createOverviewState = viewModel.createOverviewState.collectAsState().value) {
-        is CreateOverviewState.Loading -> LoadingDialog()
-
-        is CreateOverviewState.Success -> CreateOverviewLayout(
-            isEditing = isEditing,
-            navController = navController,
-            resultNavigator = resultNavigator,
-            createOverviewState = createOverviewState,
-            onFormComplete = {
-                if (isEditing) viewModel.editOverview(it) else viewModel.createOverview(it)
-            },
-            overviewData = overviewData,
-        )
-
-        is CreateOverviewState.Redirect -> {
-            var message: String? = null
-            var route = "hive_Screen/${overviewData.hiveId}"
-
-            if (isEditing) {
-                message = "Gotowe! Aktualizacja przebiegła pomyślnie."
-                route = "overview_screen/${overviewData.id}"
-            }
-
-            navController.getBackStackEntry(route).savedStateHandle["refresh"] = true
-
-            navigator.navigate(
-                OverviewScreenDestination(overviewId = createOverviewState.overviewId, message = message)
-            ) {
-                popUpTo(CreateOverviewStep1ScreenDestination.route) { inclusive = true }
-                launchSingleTop = true
-            }
-        }
-
-        is CreateOverviewState.Error -> TextError(createOverviewState.message)
-    }
+//    when (val createOverviewState = viewModel.createOverviewState.collectAsState().value) {
+//        is CreateOverviewState.Loading -> LoadingDialog()
+//
+//        is CreateOverviewState.Success -> CreateOverviewLayout(
+//            isEditing = isEditing,
+//            navController = navController,
+//            resultNavigator = resultNavigator,
+//            createOverviewState = createOverviewState,
+//            onFormComplete = {
+//                if (isEditing) viewModel.editOverview(it) else viewModel.createOverview(it)
+//            },
+//            overviewData = overviewData,
+//        )
+//
+//        is CreateOverviewState.Redirect -> {
+//            var message: String? = null
+//            var route = "hive_Screen/${overviewData.hiveId}"
+//
+//            if (isEditing) {
+//                message = "Gotowe! Aktualizacja przebiegła pomyślnie."
+//                route = "overview_screen/${overviewData.id}"
+//            }
+//
+//            navController.getBackStackEntry(route).savedStateHandle["refresh"] = true
+//
+//            navigator.navigate(
+//                OverviewScreenDestination(overviewId = createOverviewState.overviewId, message = message)
+//            ) {
+//                popUpTo(CreateOverviewStep1ScreenDestination.route) { inclusive = true }
+//                launchSingleTop = true
+//            }
+//        }
+//
+//        is CreateOverviewState.Error -> TextError(createOverviewState.message)
+//    }
 }
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -158,9 +157,9 @@ private fun CreateOverviewLayout(
             Column(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 32.dp)
             ) {
-                if (createOverviewState is CreateOverviewState.Error) {
-                    TextError(createOverviewState.message)
-                }
+//                if (createOverviewState is CreateOverviewState.Error) {
+//                    TextError(createOverviewState.message)
+//                }
 
                 Button(
                     text = stringResource(R.string.save),

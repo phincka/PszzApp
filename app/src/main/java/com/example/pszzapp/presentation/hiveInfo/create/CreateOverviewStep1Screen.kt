@@ -1,4 +1,4 @@
-package com.example.pszzapp.presentation.overview.create
+package com.example.pszzapp.presentation.hiveInfo.create
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
@@ -13,7 +13,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,17 +28,16 @@ import com.example.pszzapp.data.model.OverviewModel
 import com.example.pszzapp.presentation.apiary.create.InputSelect
 import com.example.pszzapp.presentation.apiary.create.TabsSelect
 import com.example.pszzapp.presentation.auth.base.Button
-import com.example.pszzapp.presentation.components.LoadingDialog
-import com.example.pszzapp.presentation.components.TextError
 import com.example.pszzapp.presentation.components.TopBar
 import com.example.pszzapp.presentation.dashboard.BackgroundShapes
-import com.example.pszzapp.presentation.destinations.CreateOverviewStep2ScreenDestination
-import com.example.pszzapp.presentation.destinations.OverviewScreenDestination
 import com.example.pszzapp.presentation.hive.create.OptionsModal
 import com.example.pszzapp.presentation.hive.create.OptionsState
 import com.example.pszzapp.presentation.hive.create.StepsBelt
 import com.example.pszzapp.presentation.hive.create.rememberOptionsState
 import com.example.pszzapp.presentation.main.bottomBarPadding
+import com.example.pszzapp.presentation.overview.create.CreateOverviewState
+import com.example.pszzapp.presentation.overview.create.CreateOverviewViewModel
+import com.example.pszzapp.presentation.overview.create.OverviewConstants
 import com.example.pszzapp.ui.theme.AppTheme
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -49,7 +47,7 @@ import org.koin.androidx.compose.koinViewModel
 @SuppressLint("StateFlowValueCalledInComposition")
 @Destination
 @Composable
-fun CreateOverviewStep1Screen(
+fun CreateHIveInfoStep1Screen(
     resultNavigator: ResultBackNavigator<Boolean>,
     navController: NavController,
     navigator: DestinationsNavigator,
@@ -58,30 +56,30 @@ fun CreateOverviewStep1Screen(
     apiaryId: String,
     overviewModel: OverviewModel? = null,
 ) {
-    when (val createOverviewState = viewModel.createOverviewState.collectAsState().value) {
-        is CreateOverviewState.Loading -> LoadingDialog()
-
-        is CreateOverviewState.Success -> CreateOverviewLayout(
-            navController = navController,
-            resultNavigator = resultNavigator,
-            hiveId = hiveId,
-            apiaryId = apiaryId,
-            createOverviewState = createOverviewState,
-            onFormComplete = {
-                navigator.navigate(
-                    CreateOverviewStep2ScreenDestination(
-                        isEditing = overviewModel != null,
-                        overviewData = it
-                    )
-                )
-            },
-            overviewModel = overviewModel,
-        )
-
-        is CreateOverviewState.Redirect -> navigator.navigate(OverviewScreenDestination(overviewId = createOverviewState.overviewId))
-
-        is CreateOverviewState.Error -> TextError(createOverviewState.message)
-    }
+//    when (val createOverviewState = viewModel.createOverviewState.collectAsState().value) {
+//        is CreateOverviewState.Loading -> LoadingDialog()
+//
+//        is CreateOverviewState.Success -> CreateOverviewLayout(
+//            navController = navController,
+//            resultNavigator = resultNavigator,
+//            hiveId = hiveId,
+//            apiaryId = apiaryId,
+//            createOverviewState = createOverviewState,
+//            onFormComplete = {
+//                navigator.navigate(
+//                    CreateOverviewStep2ScreenDestination(
+//                        isEditing = overviewModel != null,
+//                        overviewData = it
+//                    )
+//                )
+//            },
+//            overviewModel = overviewModel,
+//        )
+//
+//        is CreateOverviewState.Redirect -> navigator.navigate(OverviewScreenDestination(overviewId = createOverviewState.overviewId))
+//
+//        is CreateOverviewState.Error -> TextError(createOverviewState.message)
+//    }
 }
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -164,9 +162,9 @@ private fun CreateOverviewLayout(
             Column(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 32.dp)
             ) {
-                if (createOverviewState is CreateOverviewState.Error) {
-                    TextError(createOverviewState.message)
-                }
+//                if (createOverviewState is CreateOverviewState.Error) {
+//                    TextError(createOverviewState.message)
+//                }
 
                 Button(
                     text = stringResource(R.string.next),
@@ -255,72 +253,72 @@ private fun CreateOverviewForm(
 }
 
 
-object OverviewConstants {
-    val strength = listOf(
-        R.string.overview_strengts_1,
-        R.string.overview_strengts_2,
-        R.string.overview_strengts_3,
-    )
-    val mood = listOf(
-        R.string.overview_moods_1,
-        R.string.overview_moods_2,
-        R.string.overview_moods_3,
-    )
-    val beeMaggots = listOf(
-        R.string.no,
-        R.string.yes,
-    )
-    val showCells = listOf(
-        R.string.no,
-        R.string.yes,
-    )
-    val cells = listOf(
-        R.string.overview_moods_1,
-        R.string.overview_moods_1,
-        R.string.overview_moods_1,
-        R.string.overview_moods_1,
-    )
-    val numbers = listOf(
-        R.string.overview_numbers_1,
-        R.string.overview_numbers_2,
-        R.string.overview_numbers_3,
-        R.string.overview_numbers_4,
-        R.string.overview_numbers_5,
-        R.string.overview_numbers_6,
-        R.string.overview_numbers_7,
-        R.string.overview_numbers_8,
-        R.string.overview_numbers_9,
-        R.string.overview_numbers_10,
-    )
-    val partitionGrid = listOf(
-        R.string.no,
-        R.string.yes,
-    )
-    val insulator = listOf(
-        R.string.no,
-        R.string.yes,
-    )
-    val pollenCatcher = listOf(
-        R.string.no,
-        R.string.yes,
-    )
-    val propolisCatcher = listOf(
-        R.string.no,
-        R.string.yes,
-    )
-    val honeyWarehouse = listOf(
-        R.string.no,
-        R.string.yes,
-    )
-    val foodAmount = listOf(
-        R.string.overview_strengts_1,
-        R.string.overview_strengts_2,
-        R.string.overview_strengts_3,
-    )
-    val workFrame = listOf(
-        R.string.no,
-        R.string.yes,
-    )
-}
+//object OverviewConstants {
+//    val strength = listOf(
+//        R.string.overview_strengts_1,
+//        R.string.overview_strengts_2,
+//        R.string.overview_strengts_3,
+//    )
+//    val mood = listOf(
+//        R.string.overview_moods_1,
+//        R.string.overview_moods_2,
+//        R.string.overview_moods_3,
+//    )
+//    val beeMaggots = listOf(
+//        R.string.no,
+//        R.string.yes,
+//    )
+//    val showCells = listOf(
+//        R.string.no,
+//        R.string.yes,
+//    )
+//    val cells = listOf(
+//        R.string.overview_moods_1,
+//        R.string.overview_moods_1,
+//        R.string.overview_moods_1,
+//        R.string.overview_moods_1,
+//    )
+//    val numbers = listOf(
+//        R.string.overview_numbers_1,
+//        R.string.overview_numbers_2,
+//        R.string.overview_numbers_3,
+//        R.string.overview_numbers_4,
+//        R.string.overview_numbers_5,
+//        R.string.overview_numbers_6,
+//        R.string.overview_numbers_7,
+//        R.string.overview_numbers_8,
+//        R.string.overview_numbers_9,
+//        R.string.overview_numbers_10,
+//    )
+//    val partitionGrid = listOf(
+//        R.string.no,
+//        R.string.yes,
+//    )
+//    val insulator = listOf(
+//        R.string.no,
+//        R.string.yes,
+//    )
+//    val pollenCatcher = listOf(
+//        R.string.no,
+//        R.string.yes,
+//    )
+//    val propolisCatcher = listOf(
+//        R.string.no,
+//        R.string.yes,
+//    )
+//    val honeyWarehouse = listOf(
+//        R.string.no,
+//        R.string.yes,
+//    )
+//    val foodAmount = listOf(
+//        R.string.overview_strengts_1,
+//        R.string.overview_strengts_2,
+//        R.string.overview_strengts_3,
+//    )
+//    val workFrame = listOf(
+//        R.string.no,
+//        R.string.yes,
+//    )
+//}
 
 
