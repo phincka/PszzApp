@@ -1,8 +1,11 @@
 package com.example.pszzapp.presentation.hiveInfo
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pszzapp.data.model.HiveInfoModel
 import com.example.pszzapp.data.model.OverviewModel
+import com.example.pszzapp.domain.usecase.hive.GetHiveInfoUseCase
 import com.example.pszzapp.domain.usecase.overview.GetOverviewByIdUseCase
 import com.example.pszzapp.domain.usecase.overview.RemoveOverviewUseCase
 import com.example.pszzapp.presentation.overview.OverviewState
@@ -16,8 +19,7 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class HiveInfoViewModel(
     id: String,
-    private val getOverviewByIdUseCase: GetOverviewByIdUseCase,
-    private val removeOverviewUseCase: RemoveOverviewUseCase,
+    private val getHiveInfoUseCase: GetHiveInfoUseCase,
 ) : ViewModel() {
     private val _overviewState: MutableStateFlow<HiveInfoState> = MutableStateFlow(
         HiveInfoState.Loading
@@ -30,21 +32,20 @@ class HiveInfoViewModel(
     val removeOverviewState: StateFlow<RemoveOverview2State> = _removeOverviewState
 
     init {
-//        getOverviewById(id)
+        getHiveInfo(id)
     }
 
-    fun getOverviewById(id: String) {
+    fun getHiveInfo(id: String) {
         _overviewState.value = HiveInfoState.Loading
 
         viewModelScope.launch {
             try {
-                val overview = getOverviewByIdUseCase(id)
+                val hiveInfo = getHiveInfoUseCase(id)
 
-                if (overview != null) {
-                    _overviewState.value = HiveInfoState.Success(overview)
+                if (hiveInfo != null) {
+                    _overviewState.value = hiveInfo
                 } else {
-                    _overviewState.value =
-                        HiveInfoState.Error("Failed: Nie znaleziono przeglądu o podanym ID")
+                    _overviewState.value = HiveInfoState.Error("Failed: Nie znaleziono przeglądu o podanym ID")
                 }
             } catch (e: Exception) {
                 _overviewState.value = HiveInfoState.Error("Failed: ${e.message}")
@@ -68,7 +69,7 @@ class HiveInfoViewModel(
 
 sealed class HiveInfoState {
     data object Loading : HiveInfoState()
-    data class Success(val overview: OverviewModel) : HiveInfoState()
+    data class Success(val hiveInfo: HiveInfoModel) : HiveInfoState()
     data class Error(val message: String) : HiveInfoState()
 }
 

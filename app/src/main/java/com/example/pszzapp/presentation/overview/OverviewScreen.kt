@@ -38,8 +38,8 @@ import com.example.pszzapp.data.model.OverviewModel
 import com.example.pszzapp.data.model.toDetailedOverviewModel
 import com.example.pszzapp.data.util.DropdownMenuItemData
 import com.example.pszzapp.presentation.apiary.create.isRouteInBackStack
-import com.example.pszzapp.presentation.apiary.navToDashboard
-import com.example.pszzapp.presentation.apiary.navToHiveScreen
+import com.example.pszzapp.presentation.queen.navToDashboard
+import com.example.pszzapp.presentation.queen.navToHiveScreen
 import com.example.pszzapp.presentation.components.LoadingDialog
 import com.example.pszzapp.presentation.components.TextError
 import com.example.pszzapp.presentation.components.TopBar

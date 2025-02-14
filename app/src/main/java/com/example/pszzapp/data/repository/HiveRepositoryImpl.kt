@@ -2,25 +2,20 @@ package com.example.pszzapp.data.repository
 
 import android.content.Context
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import com.example.pszzapp.R
-import com.example.pszzapp.data.model.ApiaryModel
+import com.example.pszzapp.data.model.HiveInfoModel
 import com.example.pszzapp.data.model.HiveModel
-import com.example.pszzapp.domain.repository.ApiaryRepository
 import com.example.pszzapp.domain.repository.HiveRepository
-import com.example.pszzapp.presentation.apiary.RemoveApiaryState
-import com.example.pszzapp.presentation.apiary.create.CreateApiaryState
 import com.example.pszzapp.presentation.hive.RemoveHiveState
 import com.example.pszzapp.presentation.hive.create.CreateHiveState
+import com.example.pszzapp.presentation.hiveInfo.HiveInfoState
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.annotation.Single
 import java.time.LocalDate
-import kotlin.String
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -141,7 +136,12 @@ class HiveRepositoryImpl(
                             ),
                         )
 
-                    continuation.resume(CreateHiveState.Redirect(hiveId = hiveModel.id, hiveModel.apiaryId))
+                    continuation.resume(
+                        CreateHiveState.Redirect(
+                            hiveId = hiveModel.id,
+                            hiveModel.apiaryId
+                        )
+                    )
                 }
             } else {
                 continuation.resume(CreateHiveState.Error("hive_state_no_user"))
@@ -185,7 +185,35 @@ class HiveRepositoryImpl(
                 continuation.resume(RemoveHiveState.Error("hive_state_no_user"))
             }
         }
+
+    override suspend fun getHiveInfo(hiveId: String): HiveInfoState {
+        val db = FirebaseFirestore.getInstance()
+
+        try {
+            val hiveSnapshot = db.collection("hives").document(hiveId).get().await()
+            val hiveData = hiveSnapshot.data
+
+            val latestOverviewSnapshot = db.collection("overviews")
+                .whereEqualTo("hiveId", hiveId)
+                .orderBy("overviewDate", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                .limit(1)
+                .get()
+                .await()
+
+            val latestOverview = latestOverviewSnapshot.documents.firstOrNull()?.data
+
+            val combinedData = hiveData?.toMutableMap() ?: mutableMapOf<String, Any>()
+            latestOverview?.let { combinedData.putAll(it) }
+
+            Log.d("LOG_H", combinedData.toHiveInfoModel(hiveId, "uid").toString())
+
+            return HiveInfoState.Success(hiveInfo = combinedData.toHiveInfoModel(hiveId, "uid"))
+        } catch (e: Exception) {
+            return HiveInfoState.Error(e.message.toString())
+        }
+    }
 }
+
 
 private fun Map<String, Any>.toHiveModel(documentId: String, currentUserUid: String): HiveModel {
     return HiveModel(
@@ -202,5 +230,37 @@ private fun Map<String, Any>.toHiveModel(documentId: String, currentUserUid: Str
         queenAddedDate = getLocalDateFromFirestore(this, "queenAddedDate") ?: LocalDate.now(),
         hiveCreatedDate = getLocalDateFromFirestore(this, "hiveCreatedDate") ?: LocalDate.now(),
         queenNote = this["queenNote"] as? String ?: ""
+    )
+}
+
+
+private fun Map<String, Any>.toHiveInfoModel(
+    documentId: String,
+    currentUserUid: String
+): HiveInfoModel {
+    return HiveInfoModel(
+        id = documentId,
+        uid = currentUserUid,
+        name = this["name"] as? String ?: "",
+        familyType = this["familyType"].toIntOrDefault(0),
+        hiveType = this["hiveType"].toIntOrDefault(0),
+        breed = this["breed"].toIntOrDefault(0),
+        line = this["line"] as? String ?: "",
+        state = this["state"].toIntOrDefault(0),
+        queenYear = this["queenYear"].toIntOrDefault(0),
+        strength = this["strength"].toIntOrDefault(0),
+        mood = this["mood"].toIntOrDefault(0),
+        beeMaggots = this["beeMaggots"].toIntOrDefault(0),
+        cellType = this["cellType"].toIntOrDefault(0),
+        partitionGrid = this["partitionGrid"].toIntOrDefault(0),
+        insulator = this["insulator"].toIntOrDefault(0),
+        pollenCatcher = this["pollenCatcher"].toIntOrDefault(0),
+        propolisCatcher = this["propolisCatcher"].toIntOrDefault(0),
+        honeyWarehouse = this["honeyWarehouse"].toIntOrDefault(0),
+        honeyWarehouseNumbers = this["honeyWarehouseNumbers"].toIntOrDefault(0),
+        foodAmount = this["foodAmount"].toIntOrDefault(0),
+        workFrame = this["workFrame"].toIntOrDefault(0),
+        workFrameDate = getLocalDateFromFirestore(this, "workFrameDate") ?: LocalDate.now(),
+        overviewDate = getLocalDateFromFirestore(this, "overviewDate") ?: LocalDate.now(),
     )
 }

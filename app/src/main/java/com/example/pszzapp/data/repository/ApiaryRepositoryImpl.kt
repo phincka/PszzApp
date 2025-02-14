@@ -1,7 +1,6 @@
 package com.example.pszzapp.data.repository
 
 import android.content.Context
-import android.util.Log
 import com.example.pszzapp.R
 import com.example.pszzapp.data.model.ApiaryModel
 import com.example.pszzapp.domain.repository.ApiaryRepository

@@ -37,28 +37,22 @@ import com.example.pszzapp.R
 import com.example.pszzapp.components.modalDialog.ModalDialog
 import com.example.pszzapp.data.model.HiveModel
 import com.example.pszzapp.data.util.DropdownMenuItemData
-import com.example.pszzapp.presentation.apiary.navToApiariesScreen
+import com.example.pszzapp.presentation.queen.navToApiariesScreen
 import com.example.pszzapp.presentation.components.LoadingDialog
-import com.example.pszzapp.presentation.components.OverviewsLazyColumn
 import com.example.pszzapp.presentation.components.TextError
 import com.example.pszzapp.presentation.components.TopBar
 import com.example.pszzapp.presentation.dashboard.BackgroundShapes
 import com.example.pszzapp.presentation.dashboard.ButtonTile
 import com.example.pszzapp.presentation.dashboard.ButtonTiles
-import com.example.pszzapp.presentation.dashboard.navToOverview
-import com.example.pszzapp.presentation.destinations.CreateApiaryScreenDestination
 import com.example.pszzapp.presentation.destinations.CreateHiveStep1ScreenDestination
 import com.example.pszzapp.presentation.destinations.CreateOverviewStep1ScreenDestination
-import com.example.pszzapp.presentation.destinations.EditQueenScreenDestination
-import com.example.pszzapp.presentation.destinations.FeedingScreenDestination
+import com.example.pszzapp.presentation.destinations.CreateQueenScreenDestination
 import com.example.pszzapp.presentation.destinations.HiveInfoScreenDestination
-import com.example.pszzapp.presentation.destinations.OverviewScreenDestination
 import com.example.pszzapp.presentation.destinations.OverviewsScreenDestination
-import com.example.pszzapp.presentation.destinations.TreatmentScreenDestination
-import com.example.pszzapp.presentation.editQueen.EditQueenScreen
 import com.example.pszzapp.presentation.hive.create.CreateHiveConstants
 import com.example.pszzapp.presentation.main.SnackbarHandler
 import com.example.pszzapp.presentation.main.bottomBarPadding
+import com.example.pszzapp.presentation.queen.create.CreateQueenScreen
 import com.example.pszzapp.ui.theme.AppTheme
 import com.example.pszzapp.ui.theme.Typography
 import com.ramcosta.composedestinations.annotation.Destination
@@ -91,7 +85,6 @@ fun HiveScreen(
 
     val hiveState = viewModel.hiveState.collectAsState().value
     val overviewsState = viewModel.overviewsState.collectAsState().value
-    val lastOverviewIdState = viewModel.lastOverviewIdState.collectAsState().value
 
     val removeHiveState = viewModel.removeHiveState.collectAsState().value
 
@@ -168,8 +161,7 @@ fun HiveScreen(
                 ButtonTile(
                     title = "Zmień matkę",
                     icon = R.drawable.ic_tile_button,
-                    direction = EditQueenScreenDestination(
-                        hiveId = hiveId,
+                    direction = CreateQueenScreenDestination(
                     ),
                 ),
 //                ButtonTile(
@@ -274,10 +266,10 @@ fun HiveLayout(
     var titlesState by remember { mutableIntStateOf(0) }
     val titles = listOf(
         TitleTab(
-            title = "Informacje z pasieki",
+            title = "Zarządzaj ulem",
         ),
         TitleTab(
-            title = "Przeglądy",
+            title = "Informacje o ulu",
             onClick = {
 //                geOverviewsByHiveId(hive.id)
             },

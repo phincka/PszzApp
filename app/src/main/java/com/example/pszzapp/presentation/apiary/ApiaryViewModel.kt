@@ -8,7 +8,6 @@ import com.example.pszzapp.data.model.HiveModel
 import com.example.pszzapp.domain.usecase.apiary.GetApiaryByIdUseCase
 import com.example.pszzapp.domain.usecase.apiary.RemoveApiaryUseCase
 import com.example.pszzapp.domain.usecase.hive.GetHivesByApiaryIdUseCase
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -30,7 +29,8 @@ class ApiaryViewModel(
     private val _apiaryState: MutableStateFlow<ApiaryState> = MutableStateFlow(ApiaryState.Loading)
     val apiaryState: StateFlow<ApiaryState> = _apiaryState
 
-    private val _removeApiaryState: MutableStateFlow<RemoveApiaryState> = MutableStateFlow(RemoveApiaryState.None)
+    private val _removeApiaryState: MutableStateFlow<RemoveApiaryState> = MutableStateFlow(
+        RemoveApiaryState.None)
     val removeApiaryState: StateFlow<RemoveApiaryState> = _removeApiaryState
 
     init {

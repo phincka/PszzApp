@@ -1,62 +1,42 @@
-package com.example.pszzapp.presentation.editQueen
+package com.example.pszzapp.presentation.queen.create
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Clear
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.pszzapp.R
 import com.example.pszzapp.data.model.HiveModel
-import com.example.pszzapp.data.util.DropdownMenuItemData
-import com.example.pszzapp.presentation.apiaries.EmptyList
+import com.example.pszzapp.data.model.QueenModel
 import com.example.pszzapp.presentation.apiary.create.InputDate
 import com.example.pszzapp.presentation.apiary.create.InputSelect
 import com.example.pszzapp.presentation.apiary.create.InputText
-import com.example.pszzapp.presentation.apiary.navToDashboard
 import com.example.pszzapp.presentation.auth.base.Button
 import com.example.pszzapp.presentation.components.DatePicker
 import com.example.pszzapp.presentation.components.TextError
 import com.example.pszzapp.presentation.components.TopBar
 import com.example.pszzapp.presentation.dashboard.BackgroundShapes
-import com.example.pszzapp.presentation.destinations.CreateHiveStep3ScreenDestination
-import com.example.pszzapp.presentation.feeding.FeedingScreenViewModel
+import com.example.pszzapp.presentation.destinations.ApiaryScreenDestination
 import com.example.pszzapp.presentation.hive.create.CreateHiveConstants
-import com.example.pszzapp.presentation.hive.create.CreateHiveState
 import com.example.pszzapp.presentation.hive.create.OptionsModal
 import com.example.pszzapp.presentation.hive.create.OptionsState
 import com.example.pszzapp.presentation.hive.create.StepsBelt
@@ -64,67 +44,66 @@ import com.example.pszzapp.presentation.hive.create.rememberOptionsState
 import com.example.pszzapp.presentation.hive.create.toFormattedDate
 import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.example.pszzapp.ui.theme.AppTheme
-import com.example.pszzapp.ui.theme.Typography
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Destination
-//@RootNavGraph(start = true)
 @Composable
-fun EditQueenScreen(
-    hiveId: String = "M9I1XqC0P2xIqIFpLASb",
-    hiveModel: HiveModel? = null,
-    navigator: DestinationsNavigator,
+fun CreateQueenScreen(
     resultNavigator: ResultBackNavigator<Boolean>,
     navController: NavController,
-    viewModel: EditQueenViewModel = koinViewModel(parameters = { parametersOf(hiveId) })
+    navigator: DestinationsNavigator,
+    viewModel: CreateQueenViewModel = koinViewModel(),
+    queenModel: QueenModel? = null,
 ) {
-    val createHiveState by viewModel.createHiveState.collectAsState()
-    val hiveData by remember(hiveModel) { mutableStateOf(hiveModel ?: HiveModel()) }
+    val createQueenState by viewModel.createQueenState.collectAsState()
 
-    EditQueenLayout(
-        hiveData = hiveData,
+    if (createQueenState is CreateQueenState.Redirect) {
+//        navigator.navigate(
+//            ApiaryScreenDestination(id = (createQueenState as CreateQueenState.Redirect).apiaryId)
+//        )
+    }
+
+    CreateQueenLayout(
         navController = navController,
         resultNavigator = resultNavigator,
         navigator = navigator,
-        createHiveState = createHiveState
+        createQueenState = createQueenState,
+        queenModel = queenModel,
     )
 }
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
-private fun EditQueenLayout(
-    isEditing: Boolean = true,
-    hiveData: HiveModel,
+private fun CreateQueenLayout(
+    queenModel: QueenModel? = null,
     resultNavigator: ResultBackNavigator<Boolean>,
     navController: NavController,
     navigator: DestinationsNavigator,
-    createHiveState: CreateHiveState
+    createQueenState: CreateQueenState
 ) {
-    var hiveDataStep2: HiveModel by remember {
-        mutableStateOf(hiveData)
-    }
+    var queenData by remember(queenModel) { mutableStateOf(queenModel ?: QueenModel()) }
+    val isEditing = queenModel != null
 
     val queenAddedDateState = rememberMaterialDialogState()
 
     var breedOptions by rememberOptionsState(
         options = CreateHiveConstants.breed,
-        selectedOption = hiveDataStep2.breed,
+        selectedOption = queenData.breed,
         changed = isEditing,
     )
     var queenYearTypeOptions by rememberOptionsState(
         options = CreateHiveConstants.queenYear,
-        selectedOption = hiveDataStep2.queenYear,
+        selectedOption = queenData.queenYear,
         changed = isEditing,
     )
     var stateTypeOptions by rememberOptionsState(
         options = CreateHiveConstants.state,
-        selectedOption = hiveDataStep2.state,
+        selectedOption = queenData.state,
         changed = isEditing,
     )
 
@@ -142,17 +121,15 @@ private fun EditQueenLayout(
         ) {
             TopBar(
                 backNavigation = { resultNavigator.navigateBack() },
-                title = if (isEditing) "Edytuj ul" else stringResource(R.string.create_hive),
+                title = if (isEditing) "Edytuj matkę" else "Zmień matkę",
             )
 
-            StepsBelt(maxSteps = 3, currentStep = 2)
-
-            EditQueenLayoutForm(
-                hiveData = hiveData,
+            CreateQueenLayoutForm(
+                queenData = queenData,
                 breedOptions = breedOptions,
                 queenYearTypeOptions = queenYearTypeOptions,
                 stateTypeOptions = stateTypeOptions,
-                onHiveDataChange = { hiveDataStep2 = it },
+                onQueenDataChange = { queenData = it },
                 onBreedOptionsChange = { breedOptions = it },
                 onQueenYearOptionsChange = { queenYearTypeOptions = it },
                 onStateOptionsChange = { stateTypeOptions = it },
@@ -164,32 +141,26 @@ private fun EditQueenLayout(
             Column(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 32.dp)
             ) {
-                if (createHiveState is CreateHiveState.Error) {
-                    TextError(createHiveState.message)
+                if (createQueenState is CreateQueenState.Error) {
+                    TextError(createQueenState.message)
                 }
 
                 Button(
                     text = stringResource(R.string.next),
                     showIcon = true,
                     onClick = {
-                        hiveDataStep2 = hiveDataStep2.copy(
+                        queenData = queenData.copy(
                             breed = breedOptions.selectedOption,
                             queenYear = queenYearTypeOptions.selectedOption,
                             state = stateTypeOptions.selectedOption
-                        )
-                        navigator.navigate(
-                            CreateHiveStep3ScreenDestination(
-                                hiveData = hiveDataStep2,
-                                isEditing = isEditing,
-                            )
                         )
                     },
                 )
             }
 
             DatePicker(
-                pickedDate = hiveDataStep2.queenAddedDate,
-                setPickedDate = { hiveDataStep2 = hiveDataStep2.copy(queenAddedDate = it) },
+                pickedDate = queenData.queenAddedDate,
+                setPickedDate = { queenData = queenData.copy(queenAddedDate = it) },
                 dateDialogState = queenAddedDateState
             )
         }
@@ -212,12 +183,12 @@ private fun EditQueenLayout(
 }
 
 @Composable
-private fun EditQueenLayoutForm(
-    hiveData: HiveModel,
+private fun CreateQueenLayoutForm(
+    queenData: QueenModel,
     breedOptions: OptionsState,
     queenYearTypeOptions: OptionsState,
     stateTypeOptions: OptionsState,
-    onHiveDataChange: (HiveModel) -> Unit,
+    onQueenDataChange: (QueenModel) -> Unit,
     onBreedOptionsChange: (OptionsState) -> Unit,
     onQueenYearOptionsChange: (OptionsState) -> Unit,
     onStateOptionsChange: (OptionsState) -> Unit,
@@ -248,8 +219,8 @@ private fun EditQueenLayoutForm(
         InputText(
             label = stringResource(R.string.queen_line),
             placeholder = "np. Nieska",
-            value = hiveData.line,
-            onValueChange = { onHiveDataChange(hiveData.copy(line = it)) }
+            value = queenData.line,
+            onValueChange = { onQueenDataChange(queenData.copy(line = it)) }
         )
 
         InputSelect(
@@ -270,7 +241,7 @@ private fun EditQueenLayoutForm(
             options = stateTypeOptions.options
         )
 
-        hiveData.queenAddedDate?.let {
+        queenData.queenAddedDate?.let {
             InputDate(
                 value = it.toFormattedDate(),
                 label = stringResource(R.string.created_date),

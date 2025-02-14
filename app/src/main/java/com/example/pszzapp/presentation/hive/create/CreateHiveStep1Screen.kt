@@ -1,7 +1,6 @@
 package com.example.pszzapp.presentation.hive.create
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -113,7 +112,7 @@ private fun CreateHiveLayout(
                 title = if (isEditing) "Edytuj rodzinę" else stringResource(R.string.create_hive),
             )
 
-            StepsBelt(maxSteps = 3, currentStep = 1)
+            StepsBelt(maxSteps = 2, currentStep = 1)
 
             CreateHiveForm(
                 hiveData = hiveData,

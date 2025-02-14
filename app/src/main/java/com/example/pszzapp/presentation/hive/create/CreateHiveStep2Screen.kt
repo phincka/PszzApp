@@ -26,24 +26,21 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.pszzapp.R
 import com.example.pszzapp.data.model.HiveModel
-import com.example.pszzapp.presentation.apiary.create.InputDate
-import com.example.pszzapp.presentation.apiary.create.InputSelect
 import com.example.pszzapp.presentation.apiary.create.InputText
 import com.example.pszzapp.presentation.auth.base.Button
-import com.example.pszzapp.presentation.components.DatePicker
 import com.example.pszzapp.presentation.components.TextError
 import com.example.pszzapp.presentation.components.TopBar
 import com.example.pszzapp.presentation.dashboard.BackgroundShapes
-import com.example.pszzapp.presentation.destinations.CreateHiveStep3ScreenDestination
+import com.example.pszzapp.presentation.destinations.CreateHiveStep1ScreenDestination
+import com.example.pszzapp.presentation.destinations.HiveScreenDestination
 import com.example.pszzapp.presentation.main.bottomBarPadding
 import com.example.pszzapp.ui.theme.AppTheme
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import org.koin.androidx.compose.koinViewModel
-import java.time.LocalDate
 
+@SuppressLint("UnrememberedGetBackStackEntry")
 @Destination
 @Composable
 fun CreateHiveStep2Screen(
@@ -56,13 +53,37 @@ fun CreateHiveStep2Screen(
 ) {
     val createHiveState by viewModel.createHiveState.collectAsState()
 
+    if (createHiveState is CreateHiveState.Redirect) {
+        var message: String? = null
+
+        navController.getBackStackEntry("apiary_screen/${(createHiveState as CreateHiveState.Redirect).apiaryId}").savedStateHandle["refresh"] =
+            true
+
+        if (isEditing) {
+            navController.getBackStackEntry("hive_screen/${(createHiveState as CreateHiveState.Redirect).hiveId}").savedStateHandle["refresh"] =
+                true
+            message = "Gotowe! Aktualizacja przebiegła pomyślnie."
+        }
+
+        navigator.navigate(
+            HiveScreenDestination(
+                id = (createHiveState as CreateHiveState.Redirect).hiveId,
+                message = message
+            )
+        ) {
+            popUpTo(CreateHiveStep1ScreenDestination.route) { inclusive = true }
+            launchSingleTop = true
+        }
+    }
+
     CreateHiveStep2Layout(
         isEditing = isEditing,
         hiveData = hiveData,
         navController = navController,
         resultNavigator = resultNavigator,
-        navigator = navigator,
-        createHiveState = createHiveState
+        createHiveState = createHiveState,
+        onCreateHive = viewModel::createHive,
+        onEditHive = viewModel::editHive
     )
 }
 
@@ -73,30 +94,13 @@ private fun CreateHiveStep2Layout(
     hiveData: HiveModel,
     resultNavigator: ResultBackNavigator<Boolean>,
     navController: NavController,
-    navigator: DestinationsNavigator,
-    createHiveState: CreateHiveState
+    createHiveState: CreateHiveState,
+    onCreateHive: (HiveModel) -> Unit,
+    onEditHive: (HiveModel) -> Unit,
 ) {
-    var hiveDataStep2: HiveModel by remember {
+    var hiveDataStep3: HiveModel by remember {
         mutableStateOf(hiveData)
     }
-
-    val queenAddedDateState = rememberMaterialDialogState()
-
-    var breedOptions by rememberOptionsState(
-        options = CreateHiveConstants.breed,
-        selectedOption = hiveDataStep2.breed,
-        changed = isEditing,
-    )
-    var queenYearTypeOptions by rememberOptionsState(
-        options = CreateHiveConstants.queenYear,
-        selectedOption = hiveDataStep2.queenYear,
-        changed = isEditing,
-    )
-    var stateTypeOptions by rememberOptionsState(
-        options = CreateHiveConstants.state,
-        selectedOption = hiveDataStep2.state,
-        changed = isEditing,
-    )
 
     BoxWithConstraints(
         modifier = Modifier
@@ -108,25 +112,18 @@ private fun CreateHiveStep2Layout(
         Column(
             modifier = Modifier
                 .heightIn(min = maxHeight)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
         ) {
             TopBar(
                 backNavigation = { resultNavigator.navigateBack() },
                 title = if (isEditing) "Edytuj ul" else stringResource(R.string.create_hive),
             )
 
-            StepsBelt(maxSteps = 3, currentStep = 2)
+            StepsBelt(maxSteps = 2, currentStep = 3)
 
             CreateHiveForm(
-                hiveData = hiveData,
-                breedOptions = breedOptions,
-                queenYearTypeOptions = queenYearTypeOptions,
-                stateTypeOptions = stateTypeOptions,
-                onHiveDataChange = { hiveDataStep2 = it },
-                onBreedOptionsChange = { breedOptions = it },
-                onQueenYearOptionsChange = { queenYearTypeOptions = it },
-                onStateOptionsChange = { stateTypeOptions = it },
-                onDateClick = { queenAddedDateState.show() }
+                hiveData = hiveDataStep3,
+                onHiveDataChange = { hiveDataStep3 = it }
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -139,59 +136,24 @@ private fun CreateHiveStep2Layout(
                 }
 
                 Button(
-                    text = stringResource(R.string.next),
-                    showIcon = true,
+                    text = stringResource(R.string.save),
+                    showIcon = false,
                     onClick = {
-                        hiveDataStep2 = hiveDataStep2.copy(
-                            breed = breedOptions.selectedOption,
-                            queenYear = queenYearTypeOptions.selectedOption,
-                            state = stateTypeOptions.selectedOption
-                        )
-                        navigator.navigate(
-                            CreateHiveStep3ScreenDestination(
-                                hiveData = hiveDataStep2,
-                                isEditing = isEditing,
-                            )
+                        if (isEditing) onEditHive(hiveDataStep3) else onCreateHive(
+                            hiveDataStep3
                         )
                     },
+                    isLoading = createHiveState is CreateHiveState.Loading
                 )
             }
-
-            DatePicker(
-                pickedDate = hiveDataStep2.queenAddedDate,
-                setPickedDate = { hiveDataStep2 = hiveDataStep2.copy(queenAddedDate = it) },
-                dateDialogState = queenAddedDateState
-            )
         }
-
-        OptionsModal(
-            optionsState = breedOptions,
-            onOptionSelected = { breedOptions = it }
-        )
-
-        OptionsModal(
-            optionsState = queenYearTypeOptions,
-            onOptionSelected = { queenYearTypeOptions = it }
-        )
-
-        OptionsModal(
-            optionsState = stateTypeOptions,
-            onOptionSelected = { stateTypeOptions = it }
-        )
     }
 }
 
 @Composable
 private fun CreateHiveForm(
     hiveData: HiveModel,
-    breedOptions: OptionsState,
-    queenYearTypeOptions: OptionsState,
-    stateTypeOptions: OptionsState,
-    onHiveDataChange: (HiveModel) -> Unit,
-    onBreedOptionsChange: (OptionsState) -> Unit,
-    onQueenYearOptionsChange: (OptionsState) -> Unit,
-    onStateOptionsChange: (OptionsState) -> Unit,
-    onDateClick: () -> Unit
+    onHiveDataChange: (HiveModel) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -206,46 +168,15 @@ private fun CreateHiveForm(
             .padding(horizontal = 8.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        InputSelect(
-            value = breedOptions.getCurrentOption(),
-            label = stringResource(R.string.queen_breed),
-            showPlaceholder = !breedOptions.changed,
-            selectedOption = breedOptions.selectedOption,
-            setExpanded = { onBreedOptionsChange(breedOptions.copy(expanded = it)) },
-            options = breedOptions.options
-        )
-
         InputText(
-            label = stringResource(R.string.queen_line),
-            placeholder = "np. Nieska",
-            value = hiveData.line,
-            onValueChange = { onHiveDataChange(hiveData.copy(line = it)) }
+            label = stringResource(R.string.queen_note),
+            placeholder = stringResource(R.string.queen_note_placeholder),
+            value = hiveData.queenNote,
+            onValueChange = { newValue ->
+                onHiveDataChange(hiveData.copy(queenNote = newValue))
+            },
+            minLines = 10,
+            maxLines = 10,
         )
-
-        InputSelect(
-            value = queenYearTypeOptions.getCurrentOption(),
-            label = stringResource(R.string.queen_year),
-            showPlaceholder = !queenYearTypeOptions.changed,
-            selectedOption = queenYearTypeOptions.selectedOption,
-            setExpanded = { onQueenYearOptionsChange(queenYearTypeOptions.copy(expanded = it)) },
-            options = queenYearTypeOptions.options
-        )
-
-        InputSelect(
-            value = stateTypeOptions.getCurrentOption(),
-            label = stringResource(R.string.queen_state),
-            showPlaceholder = !stateTypeOptions.changed,
-            selectedOption = stateTypeOptions.selectedOption,
-            setExpanded = { onStateOptionsChange(stateTypeOptions.copy(expanded = it)) },
-            options = stateTypeOptions.options
-        )
-
-        hiveData.queenAddedDate?.let {
-            InputDate(
-                value = it.toFormattedDate(),
-                label = stringResource(R.string.created_date),
-                setExpanded = onDateClick
-            )
-        }
     }
 }

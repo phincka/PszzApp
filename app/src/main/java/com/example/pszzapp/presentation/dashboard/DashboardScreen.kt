@@ -146,10 +146,10 @@ fun DashboardLayout(
             buttonTilesNavigation = buttonTilesNavigation,
         )
 
-//        EndangeredHives(
-//            sectionTitle = "Ula wymagające działania",
-//            navigator = navigator,
-//        )
+        EndangeredHives(
+            sectionTitle = "Ula wymagające działania",
+            navigator = navigator,
+        )
 
         LastOverviews(
             sectionTitle = "Ostatnie przeglądy",

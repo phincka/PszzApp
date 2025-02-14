@@ -260,7 +260,7 @@ private fun Map<String, Any>.toOverviewModel(): OverviewModel {
     )
 }
 
-private fun Map<String, Any>.toListItemOverviewModel(): ListItemOverviewModel {
+fun Map<String, Any>.toListItemOverviewModel(): ListItemOverviewModel {
     return ListItemOverviewModel(
         id = this["id"] as? String ?: "",
         overviewDate = getLocalDateFromFirestore(this, "overviewDate"),
