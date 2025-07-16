@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">pszzapp</string>
+    <string name="app_name">FarmGame</string>
 
     !-- SignIn screen start -->
     <string name="signIn_title">Logowanie</string>
@@ -51,7 +51,7 @@
     <!-- Hive State screen end -->
 
     <!-- Home screen start -->
-    <string name="home_top_bar_title">pszzapp</string>
+    <string name="home_top_bar_title">FarmGame</string>
     <string name="home_floating_action_button">Dodaj ul</string>
     <string name="home_no_hives">Brak dostępnych uli. Musisz najpierw dodać ul.</string>
     <string name="home_loading">Ładownie…</string>

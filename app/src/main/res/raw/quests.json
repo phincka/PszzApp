@@ -1,0 +1,178 @@
+[
+  {
+    "title": "ziemniaki 1",
+    "description": "",
+    "requiredItems": {
+      "itemId": "crop_potato",
+      "quantity": 50
+    },
+    "reward": {
+      "itemId": "",
+      "quantity": 0,
+      "exp": 0,
+      "money": 0
+    }
+  },
+  {
+    "title": "ziemniaki 2",
+    "description": "po zrobieniu tego zadania user powinien mieć już level 2 żeby móc sadzić marchewkę",
+    "requiredItems": {
+      "itemId": "crop_potato",
+      "quantity": 75
+    },
+    "reward": {
+      "itemId": "",
+      "quantity": 0,
+      "exp": 0,
+      "money": 0
+    }
+  },
+  {
+    "title": "marchew",
+    "description": "",
+    "requiredItems": {
+      "itemId": "crop_carrot",
+      "quantity": 50
+    },
+    "reward": {
+      "itemId": "",
+      "quantity": 0,
+      "exp": 0,
+      "money": 0
+    }
+  },
+  {
+    "title": "marchew i ziemniaki",
+    "description": "",
+    "requiredItems": [
+      {
+        "itemId": "crop_carrot",
+        "quantity": 40
+      },
+      {
+        "itemId": "crop_potato",
+        "quantity": 60
+      }
+    ],
+    "reward": {
+      "itemId": "",
+      "quantity": 0,
+      "exp": 0,
+      "money": 0
+    }
+  },
+  {
+    "title": "ziemniaki 3",
+    "description": "po zrobieniu tego zadania level 3 żeby móc sadzić pomidory.",
+    "requiredItems": [
+      {
+        "itemId": "crop_potato",
+        "quantity": 100
+      }
+    ],
+    "reward": {
+      "itemId": "",
+      "quantity": 0,
+      "exp": 0,
+      "money": 0
+    }
+  },
+  {
+    "title": "pomidory 1",
+    "description": "",
+    "requiredItems": [
+      {
+        "itemId": "crop_tomato",
+        "quantity": 75
+      }
+    ],
+    "reward": {
+      "itemId": "",
+      "quantity": 0,
+      "exp": 0,
+      "money": 0
+    }
+  },
+  {
+    "title": "pomidory i marchew",
+    "description": ".",
+    "requiredItems": [
+      {
+        "itemId": "crop_carrot",
+        "quantity": 50
+      },
+      {
+        "itemId": "crop_tomato",
+        "quantity": 80
+      }
+    ],
+    "reward": {
+      "itemId": "",
+      "quantity": 0,
+      "exp": 0,
+      "money": 0
+    }
+  },
+  {
+    "title": "marchew 2",
+    "description": "",
+    "requiredItems": {
+      "itemId": "crop_carrot",
+      "quantity": 70
+    },
+    "reward": {
+      "itemId": "",
+      "quantity": 0,
+      "exp": 0,
+      "money": 0
+    }
+  },
+  {
+    "title": "pomidory 2",
+    "description": "po zrobieniu tego zadania level 4 żeby móc sadzić truskawki",
+    "requiredItems": [
+      {
+        "itemId": "crop_tomato",
+        "quantity": 100
+      }
+    ],
+    "reward": {
+      "itemId": "",
+      "quantity": 0,
+      "exp": 0,
+      "money": 0
+    }
+  },
+  {
+    "title": "truskawki 1",
+    "description": "",
+    "requiredItems": [
+      {
+        "itemId": "crop_strawberry",
+        "quantity": 80
+      }
+    ],
+    "reward": {
+      "itemId": "",
+      "quantity": 0,
+      "exp": 0,
+      "money": 0
+    }
+  },
+  {
+    "title": "truskawki 2",
+    "description": "",
+    "requiredItems": [
+      {
+        "itemId": "crop_strawberry",
+        "quantity": 100
+      }
+    ],
+    "reward": {
+      "itemId": "",
+      "quantity": 0,
+      "exp": 0,
+      "money": 0
+    }
+  }
+]

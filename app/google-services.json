@@ -1,36 +1,26 @@
 {
   "project_info": {
-    "project_number": "190490399300",
-    "project_id": "hiveapp-358cc",
-    "storage_bucket": "hiveapp-358cc.appspot.com"
+    "project_number": "391972332168",
+    "project_id": "adventure-farm-267ee",
+    "storage_bucket": "adventure-farm-267ee.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:190490399300:android:fa0fe9c1d8004fab47e211",
+        "mobilesdk_app_id": "1:391972332168:android:83682c14c7da66a712b53d",
         "android_client_info": {
-          "package_name": "com.example.pszzapp"
+          "package_name": "com.example.FarmGame"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "190490399300-pu192kr2hlo0lkdq1586g5hp2a6pqgh3.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDxqTb87avdwiuGEQ0-xgL22IaaELFkJBk"
+          "current_key": "AIzaSyDid9W1uJidbky_7gJOFfdjPxHhrbnelYI"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "190490399300-pu192kr2hlo0lkdq1586g5hp2a6pqgh3.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

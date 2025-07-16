@@ -1,0 +1,146 @@
+[
+  {
+    "id": "seed_potato",
+    "name": "Nasiona ziemniaka",
+    "description": "Zasiej, aby wyhodować ziemniaki.",
+    "price": 10,
+    "itemType": "SEED",
+    "growingTime": 2600,
+    "yieldMultiplier": 3,
+    "expReward": 12,
+    "requiredLevel": 3
+  },
+  {
+    "id": "seed_carrot",
+    "name": "Nasiona marchewki",
+    "description": "Zasiej, aby wyhodować marchew.",
+    "price": 8,
+    "itemType": "SEED",
+    "growingTime": 900,
+    "yieldMultiplier": 2,
+    "expReward": 15,
+    "requiredLevel": 2
+  },
+  {
+    "id": "seed_corn",
+    "name": "Nasiona kukurydzy",
+    "description": "Popularne zboże rosnące w ciepłych klimatach.",
+    "price": 12,
+    "itemType": "SEED",
+    "growingTime": 2700,
+    "yieldMultiplier": 3,
+    "expReward": 18,
+    "requiredLevel": 5
+  },
+  {
+    "id": "seed_tomato",
+    "name": "Nasiona pomidora",
+    "description": "Soczyste pomidory do sałatek i sosów.",
+    "price": 15,
+    "itemType": "SEED",
+    "growingTime": 36000,
+    "yieldMultiplier": 5,
+    "expReward": 20,
+    "requiredLevel": 7
+  },
+  {
+    "id": "seed_strawberry",
+    "name": "Nasiona truskawki",
+    "description": "Słodkie owoce, idealne na desery.",
+    "price": 20,
+    "itemType": "SEED",
+    "growingTime": 28800,
+    "yieldMultiplier": 4,
+    "expReward": 25,
+    "requiredLevel": 10
+  },
+  {
+    "id": "seed_wheat",
+    "name": "Nasiona pszenicy",
+    "description": "Zasiej, aby wyhodować pszenicę.",
+    "price": 0,
+    "itemType": "SEED",
+    "growingTime": 1200,
+    "yieldMultiplier": 10,
+    "expReward": 10,
+    "requiredLevel": 1
+  },
+  {
+    "id": "seed_cabbage",
+    "name": "Nasiona kapusty",
+    "description": "Zielona kapusta idealna na bigos.",
+    "price": 13,
+    "itemType": "SEED",
+    "growingTime": 18000,
+    "yieldMultiplier": 2,
+    "expReward": 22,
+    "requiredLevel": 4
+  },
+  {
+    "id": "seed_pumpkin",
+    "name": "Nasiona dyni",
+    "description": "Wielkie dynie na Halloween!",
+    "price": 25,
+    "itemType": "SEED",
+    "growingTime": 57600,
+    "yieldMultiplier": 2,
+    "expReward": 30,
+    "requiredLevel": 12
+  },
+  {
+    "id": "crop_wheat",
+    "name": "Pszenica",
+    "description": "Podstawowy składnik wielu potraw.",
+    "price": 15,
+    "itemType": "CROP"
+  },
+  {
+    "id": "crop_carrot",
+    "name": "Marchewka",
+    "description": "Smaczna i zdrowa marchewka.",
+    "price": 12,
+    "itemType": "CROP"
+  },
+  {
+    "id": "crop_potato",
+    "name": "Ziemniak",
+    "description": "Idealny na frytki!",
+    "price": 14,
+    "itemType": "CROP"
+  },
+  {
+    "id": "crop_corn",
+    "name": "Kukurydza",
+    "description": "Można z niej zrobić popcorn!",
+    "price": 18,
+    "itemType": "CROP"
+  },
+  {
+    "id": "crop_tomato",
+    "name": "Pomidor",
+    "description": "Soczysty pomidor, idealny do sałatek.",
+    "price": 20,
+    "itemType": "CROP"
+  },
+  {
+    "id": "crop_strawberry",
+    "name": "Truskawka",
+    "description": "Słodki owoc, doskonały na dżemy.",
+    "price": 25,
+    "itemType": "CROP"
+  },
+  {
+    "id": "crop_cabbage",
+    "name": "Kapusta",
+    "description": "Idealna na surówki i bigos.",
+    "price": 16,
+    "itemType": "CROP"
+  },
+  {
+    "id": "crop_pumpkin",
+    "name": "Dynia",
+    "description": "Świetna na zupę dyniową!",
+    "price": 30,
+    "itemType": "CROP"
+  }
+]

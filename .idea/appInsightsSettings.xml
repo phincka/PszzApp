@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.example.pszzapp" />
-                  <option name="mobileSdkAppId" value="1:190490399300:android:fa0fe9c1d8004fab47e211" />
-                  <option name="projectId" value="hiveapp-358cc" />
-                  <option name="projectNumber" value="190490399300" />
+                  <option name="appId" value="com.example.FarmGame" />
+                  <option name="mobileSdkAppId" value="1:391972332168:android:83682c14c7da66a712b53d" />
+                  <option name="projectId" value="adventure-farm-267ee" />
+                  <option name="projectNumber" value="391972332168" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

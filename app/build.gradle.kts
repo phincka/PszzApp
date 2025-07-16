@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.pszzapp"
+    namespace = "com.example.FarmGame"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.pszzapp"
+        applicationId = "com.example.FarmGame"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -58,9 +58,10 @@ android {
 dependencies {
     // compose destinations
     implementation("io.github.raamcosta.compose-destinations:core:1.10.1")
+    implementation("com.google.firebase:firebase-database:21.0.0")
     ksp("io.github.raamcosta.compose-destinations:ksp:1.10.1")
     implementation("io.github.raamcosta.compose-destinations:animations-core:1.10.1")
-
+    implementation("com.google.code.gson:gson:2.12.1")
     implementation("io.insert-koin:koin-android:3.5.6")
     implementation("io.insert-koin:koin-androidx-compose:3.5.6")
     implementation("io.insert-koin:koin-androidx-compose-navigation:3.5.3")
